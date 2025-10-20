@@ -1,41 +1,60 @@
-// src/components/SiteShell.tsx
 "use client";
 
 import { useEffect, useState } from "react";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 import BurgerMenu from "@/components/BurgerMenu";
+import ImpressumSheet from "@/components/ImpressumSheet";
+import CookieSettingsSheet from "@/components/CookieSettingsSheet";
+import CookieBanner from "@/components/CookieBanner";
 
 export default function SiteShell({ children }: { children: React.ReactNode }) {
   const [isBurgerOpen, setIsBurgerOpen] = useState(false);
+  const [openImpressum, setOpenImpressum] = useState(false);
+  const [openCookies, setOpenCookies] = useState(false);
 
-  // слушаем события от Header
   useEffect(() => {
     const onToggle = () => setIsBurgerOpen(v => !v);
     const onOpen = () => setIsBurgerOpen(true);
     const onClose = () => setIsBurgerOpen(false);
 
-    window.addEventListener("feelre:toggle-menu", onToggle as EventListener);
-    window.addEventListener("feelre:open-menu", onOpen as EventListener);
-    window.addEventListener("feelre:close-menu", onClose as EventListener);
+    const onImpressum = () => {
+      setIsBurgerOpen(false);
+      setOpenImpressum(true);
+    };
+    const onCookies = () => {
+      setIsBurgerOpen(false);
+      setOpenCookies(true);
+    };
+
+    window.addEventListener("feelre:toggle-menu", onToggle);
+    window.addEventListener("feelre:open-menu", onOpen);
+    window.addEventListener("feelre:close-menu", onClose);
+
+    window.addEventListener("feelre:open-impressum", onImpressum);
+    window.addEventListener("feelre:open-cookies", onCookies);
 
     return () => {
-      window.removeEventListener("feelre:toggle-menu", onToggle as EventListener);
-      window.removeEventListener("feelre:open-menu", onOpen as EventListener);
-      window.removeEventListener("feelre:close-menu", onClose as EventListener);
+      window.removeEventListener("feelre:toggle-menu", onToggle);
+      window.removeEventListener("feelre:open-menu", onOpen);
+      window.removeEventListener("feelre:close-menu", onClose);
+
+      window.removeEventListener("feelre:open-impressum", onImpressum);
+      window.removeEventListener("feelre:open-cookies", onCookies);
     };
   }, []);
 
-  // блокируем прокрутку страницы когда меню открыто
-  useEffect(() => {
-    const el = document.documentElement;
-    if (isBurgerOpen) el.style.overflow = "hidden";
-    else el.style.overflow = "";
-    return () => { el.style.overflow = ""; };
-  }, [isBurgerOpen]);
-
   return (
     <>
-      {children}
+      <Header />
+      <main className="flex-1">{children}</main>
+      {/* ВАЖНО: якорь для скролла из BurgerMenu */}
+      <Footer />
+
       <BurgerMenu open={isBurgerOpen} onClose={() => setIsBurgerOpen(false)} />
+      <ImpressumSheet open={openImpressum} onClose={() => setOpenImpressum(false)} />
+      <CookieSettingsSheet open={openCookies} onClose={() => setOpenCookies(false)} />
+      <CookieBanner />
     </>
   );
 }

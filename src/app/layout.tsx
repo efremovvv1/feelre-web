@@ -1,6 +1,4 @@
 import "./globals.css";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import SiteShell from "@/components/SiteShell";
 import { Montserrat } from "next/font/google";
 
@@ -21,9 +19,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={montserrat.variable}>
       <body className="min-h-dvh flex flex-col">
         <SiteShell>
-          <Header />
+          
           <main className="flex-1">{children}</main>
-          <Footer />
+          
         </SiteShell>
       </body>
     </html>

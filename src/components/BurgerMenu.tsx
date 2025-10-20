@@ -14,6 +14,7 @@ function openPanel(panel: "about" | "faq") {
   window.dispatchEvent(new CustomEvent("feelre:open-panel", { detail: { panel } }));
 }
 
+
 // Безопасное получение текста ошибки
 function getErrorMessage(err: unknown): string {
   if (err instanceof Error) return err.message;
@@ -179,20 +180,63 @@ export default function BurgerMenu({ open, onClose }: Props) {
 
                 <Divider />
 
-                {/* Navigation */}
+              {/* Navigation */}
                 <nav className="grid gap-1 text-[16px]">
-                  <NavButton onClick={() => { onClose(); setTimeout(() => openPanel("about"), 120); }}>About Us</NavButton>
-                  <NavButton onClick={() => { onClose(); setTimeout(() => openPanel("faq"), 120); }}>FAQ</NavButton>
+                {/* About + FAQ */}
+                <NavButton
+                    onClick={() => {
+                    onClose();
+                    setTimeout(() => openPanel("about"), 120);
+                    }}
+                >
+                    About Us
+                </NavButton>
 
-                  <Divider />
+                <NavButton
+                    onClick={() => {
+                    onClose();
+                    setTimeout(() => openPanel("faq"), 120);
+                    }}
+                >
+                    FAQ
+                </NavButton>
 
-                  <NavLink href="/impressum" onClick={onClose}>Imprint</NavLink>
-                  <NavLink href="/cookies" onClick={onClose}>Cookie Settings</NavLink>
+                <Divider />
 
-                  <Divider />
+                {/* Imprint */}
+                <NavButton
+                    onClick={() => {
+                    onClose();
+                    setTimeout(() => {
+                        window.scrollTo({ top: 0, behavior: "smooth" }); // 👈 просто плавно наверх
+                        window.dispatchEvent(new CustomEvent("feelre:open-impressum")); // 👈 открываем карточку
+                    }, 160);
+                    }}
+                >
+                    Imprint
+                </NavButton>
 
-                  <NavLink href="/privacy" onClick={onClose}>Privacy Policy</NavLink>
-                  <NavLink href="/terms" onClick={onClose}>Terms of Service</NavLink>
+                {/* Cookie Settings */}
+                <NavButton
+                    onClick={() => {
+                    onClose();
+                    setTimeout(() => {
+                        window.scrollTo({ top: 0, behavior: "smooth" });
+                        window.dispatchEvent(new CustomEvent("feelre:open-cookies"));
+                    }, 160);
+                    }}
+                >
+                    Cookie Settings
+                </NavButton>
+
+                <Divider />
+
+                <NavLink href="/privacy" onClick={onClose}>
+                    Privacy Policy
+                </NavLink>
+                <NavLink href="/terms" onClick={onClose}>
+                    Terms of Service
+                </NavLink>
                 </nav>
 
                 <Divider />

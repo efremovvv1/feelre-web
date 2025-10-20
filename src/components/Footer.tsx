@@ -13,7 +13,7 @@ export default function Footer() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="w-full mt-10">
+    <footer id="site-footer" className="w-full mt-10">
       <div className="w-full bg-gradient-to-r from-[#B974FF] via-[#9E73FA] to-[#6B66F6] text-white">
         {/* компактная высота футера */}
         <div className="mx-auto max-w-[1200px] px-6 sm:px-8 lg:px-10 py-8 lg:py-10">
@@ -42,8 +42,18 @@ export default function Footer() {
             <nav className="text-center">
               <div className="text-[15px] font-semibold uppercase tracking-wide opacity-80">Legal</div>
               <div className="mt-3 flex flex-col items-center gap-2">
-                <Link href="#" className="text-[16px] hover:opacity-90 transition-opacity">Impressum</Link>
-                <Link href="#" className="text-[16px] hover:opacity-90 transition-opacity">Cookie Settings</Link>
+                <button
+                className="text-left hover:opacity-80"
+                onClick={() => window.dispatchEvent(new CustomEvent("feelre:open-impressum"))}
+                >
+                Impressum
+                </button>
+                <button
+                className="text-left hover:opacity-80"
+                onClick={() => window.dispatchEvent(new CustomEvent("feelre:open-cookies"))}
+                >
+                Cookie Settings
+                </button>
               </div>
             </nav>
 
@@ -51,8 +61,8 @@ export default function Footer() {
             <nav className="text-center">
               <div className="text-[15px] font-semibold uppercase tracking-wide opacity-80">Policies</div>
               <div className="mt-3 flex flex-col items-center gap-2">
-                <Link href="#" className="text-[16px] hover:opacity-90 transition-opacity">Privacy Policy</Link>
-                <Link href="#" className="text-[16px] hover:opacity-90 transition-opacity">Terms of Service</Link>
+                <Link href="/privacy" className="text-[16px] hover:opacity-90 transition-opacity">Privacy Policy</Link>
+                <Link href="/terms" className="text-[16px] hover:opacity-90 transition-opacity">Terms of Service</Link>
               </div>
             </nav>
 
