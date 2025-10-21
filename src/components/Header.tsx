@@ -3,20 +3,20 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Montserrat } from "next/font/google";
+import { usePathname } from "next/navigation";
 
-const montserrat700 = Montserrat({
-  subsets: ["latin"],
-  weight: ["700"],
-});
-
+const montserrat700 = Montserrat({ subsets: ["latin"], weight: ["700"] });
 const DEFAULT_TITLE = "Ready to help you with a purchase.";
 
 export default function Header() {
   const [title, setTitle] = useState<string>(DEFAULT_TITLE);
+  const pathname = usePathname();
 
-  // Слушаем кастомное событие, чтобы менять текст заголовка из страниц
+  // рендерим кнопку всегда, но прячем/выключаем на /auth/*
+  const isAuth = useMemo(() => pathname?.startsWith("/auth") ?? false, [pathname]);
+
   useEffect(() => {
     const handler = (e: Event) => {
       const detail = (e as CustomEvent).detail as { title?: string | null };
@@ -28,14 +28,11 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-40 w-full">
-      {/* Градиентная плашка */}
       <div className="w-full bg-gradient-to-r from-[#B974FF] via-[#9E73FA] to-[#6B66F6]">
-        {/* Полоса-подсветка снизу */}
         <div className="h-[2px] w-full bg-[#27A4FF]/80" />
 
-        {/* Поле шапки */}
         <div className="relative h-[100px]">
-          {/* ЛОГО */}
+          {/* logo */}
           <Link href="/" className="absolute left-[35px] top-1/2 -translate-y-1/2">
             <Image
               src="/images/brand/feelre_logo.png"
@@ -47,7 +44,7 @@ export default function Header() {
             />
           </Link>
 
-          {/* ДИНАМИЧЕСКИЙ ЗАГОЛОВОК */}
+          {/* dynamic title */}
           <h1
             className={`
               ${montserrat700.className}
@@ -60,10 +57,19 @@ export default function Header() {
             {title}
           </h1>
 
-          {/* БУРГЕР (пока без логики открытия, она у тебя в BurgerMenu) */}
-          <button aria-label="Open menu"
-            className="absolute right-[35px] top-1/2 -translate-y-1/2 grid place-items-center w-[54px] h-[54px] rounded-2xl bg-white/20 hover:bg-white/25 transition"
+          {/* burger: всегда в DOM (чтобы не ломать гидрацию), но на /auth/* невидим и не кликается */}
+          <button
+            aria-label="Open menu"
+            aria-hidden={isAuth}
+            tabIndex={isAuth ? -1 : 0}
+            disabled={isAuth}
+            className={`
+              absolute right-[35px] top-1/2 -translate-y-1/2 grid place-items-center
+              w-[54px] h-[54px] rounded-2xl transition
+              ${isAuth ? "opacity-0 pointer-events-none" : "bg-white/20 hover:bg-white/25"}
+            `}
             onClick={() => {
+              if (isAuth) return;
               window.dispatchEvent(new CustomEvent("feelre:toggle-menu"));
             }}
           >

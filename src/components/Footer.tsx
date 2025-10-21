@@ -95,8 +95,8 @@ export default function Footer() {
             <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-[13px] opacity-90">
               <button onClick={() => openPanel("about")} className="hover:opacity-90">About</button>
               <button onClick={() => openPanel("faq")} className="hover:opacity-90">FAQ</button>
-              <Link href="#" className="hover:opacity-90">Privacy</Link>
-              <Link href="#" className="hover:opacity-90">Terms</Link>
+              <Link href="/privacy" className="hover:opacity-90">Privacy</Link>
+              <Link href="/terms" className="hover:opacity-90">Terms</Link>
             </div>
           </div>
         </div>
