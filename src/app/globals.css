@@ -1,14 +1,14 @@
+/* Tailwind v4 */
 @import "tailwindcss";
 
 /* ───────────────────────────────
-   Переменные тем и базовые цвета
+   Тема / базовые цвета
 ─────────────────────────────── */
 :root {
   --background: #ffffff;
-  --foreground: #171717; /* можно оставить, но не применять глобально */
+  --foreground: #171717;
 }
 
-/* Тёмная тема (по системным настройкам) */
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
@@ -17,24 +17,17 @@
 }
 
 /* ───────────────────────────────
-   Базовые стили для html и body
+   База
 ─────────────────────────────── */
 html,
-body {
-  height: 100%;
-}
+body { height: 100%; }
 
 body {
-  font-family: var(--font-mont), ui-sans-serif, system-ui, -apple-system,
-    "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans",
-    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
-    "Noto Color Emoji";
-
-  /* Глобальный фон */
+  font-family: var(--font-mont), ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+    Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji",
+    "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   background: #fdf6f8 url("/images/background/background.png") no-repeat center top;
   background-size: 110% auto;
-
-  /* Важно: не задаём color всему body, чтобы не «посерить» всё */
   margin: 0;
   padding: 0;
   min-height: 100dvh;
@@ -42,12 +35,47 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* ───────────────────────────────
-   Контент и заголовки
-─────────────────────────────── */
+/* чуть скромнее фон на узких экранах */
+@media (max-width: 640px) {
+  body { background-size: 140% auto; }
+}
+
+/* заголовки внутри .content */
 .content h1,
 .content h2,
-.content h3 {
-  font-weight: 700;
-  color: #111214;
+.content h3 { font-weight: 700; color: #111214; }
+
+/* подсказка браузеру для слоя компоновки */
+.gpu { transform: translateZ(0); }
+
+/* уважаем reduce-motion */
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0ms !important; transition-duration: 0ms !important; }
+}
+
+/* ───────────────────────────────
+   Tailwind utilities (одно место!)
+─────────────────────────────── */
+@layer utilities {
+  /* карточки/листы */
+  .m-card      { @apply rounded-2xl p-4 md:p-6; }
+
+  /* заголовки и текст */
+  .m-h1        { @apply text-[28px] md:text-[44px] leading-[1.15] font-extrabold; }
+  .m-h2        { @apply text-[20px] md:text-[28px] leading-tight font-semibold; }
+  .m-body      { @apply text-[15px] md:text-[17px] leading-6 md:leading-7 text-neutral-700; }
+
+  /* инпуты и кнопки */
+  .m-input     { @apply h-11 md:h-12 text-[15px] md:text-[16px] px-3 md:px-4 rounded-xl; }
+  .m-btn       { @apply h-11 md:h-12 px-4 md:px-5 text-[15px] md:text-[16px] rounded-xl; }
+
+  /* чипсы/тэги */
+  .m-chip      { @apply h-9 md:h-10 px-3 md:px-4 text-[13px] md:text-[14px] rounded-full; }
+
+  /* контейнер */
+  .m-container { @apply w-[min(100%,700px)] md:w-[min(100%,900px)] mx-auto px-3 md:px-6; }
+
+  /* полезные утилиты для мобилок */
+  .hide-mobile { @apply hidden sm:block; }   /* спрятать на xs/sm */
+  .show-mobile { @apply sm:hidden; }         /* показать только на xs/sm */
 }

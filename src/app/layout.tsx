@@ -1,27 +1,23 @@
+// src/app/layout.tsx
 import "./globals.css";
 import SiteShell from "@/components/SiteShell";
-import { Montserrat } from "next/font/google";
+import { montserrat } from "@/styles/fonts";
 
 export const metadata = {
   title: "FEELRE",
   description: "AI shopping assistant",
 };
 
-const montserrat = Montserrat({
-  subsets: ["latin"],
-  weight: ["400", "600", "700"],
-  variable: "--font-mont",
-  display: "swap",
-});
-
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={montserrat.variable}>
-      <body className="min-h-dvh flex flex-col">
+    <html lang="en" suppressHydrationWarning>
+      {/* body ДОЛЖЕН быть прямым ребёнком html и единственным */}
+      <body className={`${montserrat.variable} min-h-dvh antialiased bg-[#fdf6f8]`}>
+        {/* Любые оболочки/шейлы идут уже внутри body */}
         <SiteShell>
-          
-          <main className="flex-1">{children}</main>
-          
+          {children}
         </SiteShell>
       </body>
     </html>

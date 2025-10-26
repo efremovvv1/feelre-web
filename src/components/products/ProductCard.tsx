@@ -12,62 +12,56 @@ export type Product = {
   url?: string;
 };
 
-type Props = {
-  product: Product;
-};
+type Props = { product: Product };
 
 export default function ProductCard({ product }: Props) {
   return (
     <div
       className="
-        rounded-[16px] border border-black/10 bg-white
-        shadow-[0_18px_50px_-20px_rgba(0,0,0,.25)]
-        overflow-hidden flex flex-col
-        transition-all hover:-translate-y-[2px] hover:shadow-[0_20px_50px_-18px_rgba(0,0,0,.3)]
+        flex flex-col overflow-hidden rounded-2xl border border-black/5 bg-white
+        shadow-[0_8px_24px_-8px_rgba(0,0,0,0.15)]
+        transition-transform duration-200 hover:-translate-y-[2px] hover:shadow-[0_12px_32px_-10px_rgba(0,0,0,0.25)]
+        font-[Montserrat]
       "
     >
-      {/* картинка */}
-      <div className="relative h-[220px] bg-white">
+      {/* изображение — теперь более компактное */}
+      <div className="relative aspect-[3/4] w-full bg-white">
         <Image
           src={product.image}
           alt={product.title}
           fill
-          className="object-contain p-6"
-          sizes="(max-width: 768px) 100vw, 25vw"
+          className="object-contain p-3 sm:p-4"
+          sizes="(max-width: 768px) 50vw, 25vw"
         />
       </div>
 
-      {/* тонкая разделительная полоска */}
-      <div className="h-[1px] bg-gradient-to-r from-transparent via-[#e5e6ec] to-transparent" />
+      {/* контент */}
+      <div className="flex flex-col flex-1 px-3 pb-3">
+        <div className="text-[13px] font-semibold leading-snug text-neutral-800 line-clamp-3">
+          {product.title}
+        </div>
 
-      {/* описание */}
-      <div className="flex flex-col gap-2 p-4">
-  <div className="text-[13px] font-bold text-[#656879]">
-    {product.title}
-  </div>
-
-    <div className="mt-1 space-y-1 text-[12px] font-normal text-[#6d7280]">
-      <div>
-        <span className="text-[#8b8daa]">Shop:</span> {product.shop}
+        <div className="mt-1.5 space-y-1 text-[11.5px] text-neutral-600">
+          <div>
+            <span className="text-neutral-500">Shop:</span> {product.shop}
+          </div>
+          <div>{product.delivery}</div>
+          <div>
+            <span className="text-neutral-500">Price:</span> {product.price}
+          </div>
+        </div>
       </div>
-      <div>{product.delivery}</div>
-      <div>
-        <span className="text-[#8b8daa]">Price:</span> {product.price}
-      </div>
-    </div>
-  </div>
 
       {/* кнопка */}
-      <div className="p-4 pt-0 mt-auto">
+      <div className="px-3 pb-3">
         <a
           href={product.url ?? "#"}
           target="_blank"
           rel="noopener noreferrer"
           className="
-            block text-center  w-full rounded-[10px]
+            block w-full rounded-[10px] py-2 text-[13px] text-white text-center
             bg-gradient-to-r from-[#B974FF] via-[#9E73FA] to-[#6B66F6]
-            text-white text-[14px] py-2.5
-            shadow-[0_8px_20px_-8px_rgba(108,89,255,.6)]
+            shadow-[0_6px_16px_-6px_rgba(108,89,255,.6)]
             hover:brightness-110 active:translate-y-[1px] transition
           "
         >

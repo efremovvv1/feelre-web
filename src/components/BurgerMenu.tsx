@@ -1,10 +1,14 @@
-// src/components/BurgerMenu.tsx
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { AnimatePresence, motion } from "framer-motion";
+import {
+  AnimatePresence,
+  motion,
+  cubicBezier,
+  useReducedMotion,
+} from "framer-motion";
 import { useRouter } from "next/navigation";
 import { REGIONS } from "@/data/regions";
 import { supabase } from "@/lib/supabase";
@@ -12,22 +16,18 @@ import { supabase } from "@/lib/supabase";
 type Props = { open: boolean; onClose: () => void };
 type Profile = { nickname: string | null };
 
-// ── helpers
-function openPanel(panel: "about" | "faq") {
-  document.querySelector("#chat-box")?.scrollIntoView({ behavior: "smooth", block: "center" });
-  window.dispatchEvent(new CustomEvent("feelre:open-panel", { detail: { panel } }));
-}
-const errMsg = (e: unknown) => (e instanceof Error ? e.message : typeof e === "string" ? e : "Unknown error");
+const errMsg = (e: unknown) =>
+  e instanceof Error ? e.message : typeof e === "string" ? e : "Unknown error";
 
-// ── component
 export default function BurgerMenu({ open, onClose }: Props) {
   const router = useRouter();
+  const prefersReduced = useReducedMotion();
 
   // prefs
   const [language, setLanguage] = useState("en");
   const [region, setRegion] = useState("DE");
 
-  // auth + profile
+  // auth
   const [sessionReady, setSessionReady] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
   const [email, setEmail] = useState<string | null>(null);
@@ -38,20 +38,21 @@ export default function BurgerMenu({ open, onClose }: Props) {
   const [accountOpen, setAccountOpen] = useState(false);
   const [signingOut, setSigningOut] = useState(false);
 
-  // init prefs
+  // prefs load
   useEffect(() => {
-    const L = localStorage.getItem("feelre:lang");
-    const R = localStorage.getItem("feelre:region");
-    if (L) setLanguage(L);
-    if (R) setRegion(R);
+    setLanguage(localStorage.getItem("feelre:lang") || "en");
+    setRegion(localStorage.getItem("feelre:region") || "DE");
   }, []);
+
   useEffect(() => localStorage.setItem("feelre:lang", language), [language]);
   useEffect(() => {
     localStorage.setItem("feelre:region", region);
-    window.dispatchEvent(new CustomEvent("feelre:region-changed", { detail: { region } }));
+    window.dispatchEvent(
+      new CustomEvent("feelre:region-changed", { detail: { region } })
+    );
   }, [region]);
 
-  // watch auth
+  // auth watch
   useEffect(() => {
     let active = true;
     supabase.auth.getSession().then(({ data }) => {
@@ -61,39 +62,38 @@ export default function BurgerMenu({ open, onClose }: Props) {
       setEmail(u?.email ?? null);
       setSessionReady(true);
     });
+
     const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => {
       const u = s?.user ?? null;
       setUserId(u?.id ?? null);
       setEmail(u?.email ?? null);
-      // подгружаем профиль при каждом изменении
       if (u?.id) fetchProfile(u.id);
       else setProfile(null);
     });
+
     return () => {
       active = false;
       sub.subscription.unsubscribe();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // fetch profile
   async function fetchProfile(uid: string) {
-    const { data, error } = await supabase
+    const { data } = await supabase
       .from("profiles")
       .select("nickname")
       .eq("id", uid)
       .single();
-    if (!error) setProfile(data as Profile);
+    setProfile(data as Profile);
   }
 
-  // начальная загрузка профиля, когда уже известен userId
   useEffect(() => {
     if (userId) fetchProfile(userId);
   }, [userId]);
 
-  const displayName = useMemo(() => {
-    return profile?.nickname || email || "User";
-  }, [profile?.nickname, email]);
+  const displayName = useMemo(
+    () => profile?.nickname || email || "User",
+    [profile?.nickname, email]
+  );
 
   async function handleLogout() {
     try {
@@ -102,7 +102,6 @@ export default function BurgerMenu({ open, onClose }: Props) {
       onClose();
       router.push("/");
       router.refresh();
-      window.dispatchEvent(new CustomEvent("feelre:user-signed-out"));
     } catch (e) {
       alert("Failed to sign out: " + errMsg(e));
     } finally {
@@ -110,103 +109,135 @@ export default function BurgerMenu({ open, onClose }: Props) {
     }
   }
 
-  // esc to close
+  // ESC + scroll lock
   useEffect(() => {
+    if (!open) return;
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
-    if (open) window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    window.addEventListener("keydown", onKey);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prev;
+    };
   }, [open, onClose]);
+
+  const panelTransition = prefersReduced
+    ? { duration: 0 }
+    : { duration: 0.28, ease: cubicBezier(0.25, 0.1, 0.25, 1) };
 
   return (
     <AnimatePresence>
       {open && (
         <>
+          {/* overlay */}
           <motion.div
             onClick={onClose}
             className="fixed inset-0 z-40 bg-black/25 backdrop-blur-sm"
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.25 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
           />
-          <motion.aside
-            style={{ willChange: "transform" }}
-            className="fixed right-0 top-0 z-50 h-full w-[92%] max-w-[520px] p-3 sm:p-4"
-            initial={{ x: "100%" }} animate={{ x: 0 }} exit={{ x: "100%" }} transition={{ duration: 0.35, ease: "easeInOut" }}
-          >
-            <div className="h-full overflow-hidden rounded-3xl bg-white shadow-[0_20px_80px_rgba(0,0,0,0.18)] ring-1 ring-black/5">
-              {/* header */}
-              <div className="relative p-5">
-                <div className="absolute inset-x-0 top-0 h-2 bg-gradient-to-r from-[#B974FF] via-[#9E73FA] to-[#6B66F6]" />
-                <button
-                  onClick={() => {
-                    if (!isAuthed) {
-                      // если гость — ведём на sign-in
-                      onClose();
-                      return router.push("/auth/sign-in");
-                    }
-                    setAccountOpen(v => !v);
-                  }}
-                  className="mt-2 flex w-full items-center justify-between gap-3 rounded-2xl px-2 py-1 transition hover:bg-black/5"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="grid h-12 w-12 place-items-center rounded-full bg-black/5">
-                      <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
-                        <circle cx="12" cy="8" r="4" stroke="black" strokeWidth="1.5" />
-                        <path d="M4 20c1.7-3.6 5-5.5 8-5.5s6.3 1.9 8 5.5" stroke="black" strokeWidth="1.5" />
-                      </svg>
-                    </div>
-                    <div className="leading-tight text-left">
-                      <div className="text-[17px] font-semibold text-neutral-900">
-                        {sessionReady ? (isAuthed ? `@${displayName}` : "Guest") : "…"}
-                      </div>
-                      <div className="text-[13px] text-neutral-500">
-                        {sessionReady ? (isAuthed ? "Account settings" : "Not signed in") : "Checking…"}
-                      </div>
-                    </div>
-                  </div>
-                  <motion.svg
-                    width="18" height="18" viewBox="0 0 24 24"
-                    animate={{ rotate: accountOpen ? 90 : 0 }} transition={{ duration: 0.25 }}
-                    className="mr-1 opacity-70"
-                  >
-                    <path d="M8 10l4 4 4-4" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" />
-                  </motion.svg>
-                </button>
 
-                <motion.button
-                  onClick={onClose} aria-label="Close" whileTap={{ scale: 0.9 }}
-                  className="absolute right-3 top-3 grid h-10 w-10 place-items-center rounded-2xl bg-black/5 hover:bg-black/10"
-                >
-                  <motion.div animate={{ rotate: open ? 180 : 0 }} className="relative h-5 w-5">
-                    <span className="absolute inset-x-0 top-1/2 -translate-y-1/2 block h-[2px] bg-black rotate-45" />
-                    <span className="absolute inset-x-0 top-1/2 -translate-y-1/2 block h-[2px] bg-black -rotate-45" />
-                  </motion.div>
-                </motion.button>
+          {/* panel */}
+          <motion.aside
+            className="fixed right-0 top-0 z-50 h-full w-[92%] max-w-[480px] p-3 sm:p-4 transform-gpu"
+            initial={{ x: "100%", opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: "100%", opacity: 0 }}
+            transition={panelTransition}
+          >
+            <div className="h-full overflow-y-auto rounded-2xl bg-white shadow-[0_12px_40px_-16px_rgba(0,0,0,.25)] ring-1 ring-black/5">
+              {/* header */}
+              <div className="relative p-4 md:p-5 border-b border-black/5">
+                <div className="flex items-center justify-between">
+                  <button
+                    onClick={() => {
+                      if (!isAuthed) {
+                        onClose();
+                        return router.push("/auth/sign-in");
+                      }
+                      setAccountOpen((v) => !v);
+                    }}
+                    className="flex w-full items-center justify-between rounded-xl px-2 py-1 hover:bg-black/5"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="grid h-10 w-10 place-items-center rounded-full bg-black/5">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                          <circle cx="12" cy="8" r="4" stroke="black" strokeWidth="1.5" />
+                          <path
+                            d="M4 20c1.7-3.6 5-5.5 8-5.5s6.3 1.9 8 5.5"
+                            stroke="black"
+                            strokeWidth="1.5"
+                          />
+                        </svg>
+                      </div>
+                      <div className="leading-tight text-left">
+                        <div className="text-[15px] font-semibold text-neutral-900">
+                          {sessionReady ? (isAuthed ? `@${displayName}` : "Guest") : "…"}
+                        </div>
+                        <div className="text-[12px] text-neutral-500">
+                          {sessionReady
+                            ? isAuthed
+                              ? "Account settings"
+                              : "Not signed in"
+                            : "Checking…"}
+                        </div>
+                      </div>
+                    </div>
+                    <motion.svg
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      animate={{ rotate: accountOpen ? 90 : 0 }}
+                      transition={{ duration: prefersReduced ? 0 : 0.2 }}
+                      className="opacity-70"
+                    >
+                      <path
+                        d="M8 10l4 4 4-4"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        fill="none"
+                        strokeLinecap="round"
+                      />
+                    </motion.svg>
+                  </button>
+
+                  <button
+                    onClick={onClose}
+                    aria-label="Close"
+                    className="absolute right-3 top-3 grid h-9 w-9 place-items-center rounded-xl hover:bg-black/5"
+                  >
+                    ✕
+                  </button>
+                </div>
               </div>
 
               {/* content */}
-              <div className="px-5 pb-5">
-                {/* Account Settings (только для авторизованного) */}
-                <AnimatePresence>
+              <div className="p-4 md:p-5 space-y-4">
+                {/* account panel */}
+                <AnimatePresence initial={false}>
                   {isAuthed && accountOpen && (
                     <motion.div
-                      key="account-panel"
                       initial={{ opacity: 0, height: 0 }}
                       animate={{ opacity: 1, height: "auto" }}
                       exit={{ opacity: 0, height: 0 }}
-                      transition={{ duration: 0.3, ease: "easeOut" }}
-                      className="mb-4 overflow-hidden"
+                      transition={panelTransition}
+                      className="overflow-hidden"
                     >
                       <AccountSettingsPanel email={email ?? ""} onClose={() => setAccountOpen(false)} />
                     </motion.div>
                   )}
                 </AnimatePresence>
 
-                {/* Preferences */}
+                {/* preferences */}
                 <div className="space-y-3">
                   <Row label="Language">
                     <select
                       value={language}
                       onChange={(e) => setLanguage(e.target.value)}
-                      className="w-full rounded-xl border border-neutral-200 bg-white px-3 py-2 text-[15px]"
+                      className="m-input w-full border border-neutral-200 bg-white"
                     >
                       <option value="en">English 🇬🇧</option>
                       <option value="de">Deutsch 🇩🇪</option>
@@ -218,7 +249,7 @@ export default function BurgerMenu({ open, onClose }: Props) {
                     <select
                       value={region}
                       onChange={(e) => setRegion(e.target.value)}
-                      className="w-full rounded-xl border border-neutral-200 bg-white px-3 py-2 text-[15px]"
+                      className="m-input w-full border border-neutral-200 bg-white"
                     >
                       {REGIONS.map((r) => (
                         <option key={r.code} value={r.code}>
@@ -231,50 +262,22 @@ export default function BurgerMenu({ open, onClose }: Props) {
 
                 <Divider />
 
-                {/* Навигация */}
-                <nav className="grid gap-1 text-[16px]">
-                  <NavButton onClick={() => { onClose(); setTimeout(() => openPanel("about"), 120); }}>
-                    About Us
-                  </NavButton>
-                  <NavButton onClick={() => { onClose(); setTimeout(() => openPanel("faq"), 120); }}>
-                    FAQ
-                  </NavButton>
+                {/* nav */}
+                <nav className="grid gap-1 text-[15px] md:text-[16px]">
+                  <NavButton onClick={() => window.dispatchEvent(new CustomEvent("feelre:open-panel", { detail: { panel: "about" } }))}>About Us</NavButton>
+                  <NavButton onClick={() => window.dispatchEvent(new CustomEvent("feelre:open-panel", { detail: { panel: "faq" } }))}>FAQ</NavButton>
 
                   <Divider />
-
-                  <NavButton
-                    onClick={() => {
-                      onClose();
-                      setTimeout(() => {
-                        window.scrollTo({ top: 0, behavior: "smooth" });
-                        window.dispatchEvent(new CustomEvent("feelre:open-impressum"));
-                      }, 160);
-                    }}
-                  >
-                    Imprint
-                  </NavButton>
-                  <NavButton
-                    onClick={() => {
-                      onClose();
-                      setTimeout(() => {
-                        window.scrollTo({ top: 0, behavior: "smooth" });
-                        window.dispatchEvent(new CustomEvent("feelre:open-cookies"));
-                      }, 160);
-                    }}
-                  >
-                    Cookie Settings
-                  </NavButton>
+                  <NavButton onClick={() => window.dispatchEvent(new CustomEvent("feelre:open-impressum"))}>Imprint</NavButton>
+                  <NavButton onClick={() => window.dispatchEvent(new CustomEvent("feelre:open-cookies"))}>Cookie Settings</NavButton>
 
                   <Divider />
-
                   <NavLink href="/privacy" onClick={onClose}>Privacy Policy</NavLink>
                   <NavLink href="/terms" onClick={onClose}>Terms of Service</NavLink>
 
                   <Divider />
-
-                  {/* Auth area */}
-                  {sessionReady && (
-                    isAuthed ? (
+                  {sessionReady &&
+                    (isAuthed ? (
                       <NavButton onClick={handleLogout} className="text-red-600 hover:bg-red-50">
                         {signingOut ? "Signing out…" : "Log out"}
                       </NavButton>
@@ -283,21 +286,20 @@ export default function BurgerMenu({ open, onClose }: Props) {
                         <NavLink href="/auth/sign-in" onClick={onClose}>Sign in</NavLink>
                         <NavLink href="/auth/sign-up" onClick={onClose}>Create account</NavLink>
                       </>
-                    )
-                  )}
+                    ))}
                 </nav>
 
                 <Divider />
 
-                {/* Contacts */}
+                {/* contacts */}
                 <div className="space-y-3">
-                  <a href="mailto:hello@feerly.com" className="block text-[15px] hover:text-neutral-700">
+                  <a href="mailto:hello@feerly.com" className="block text-[14px] hover:text-neutral-700">
                     hello@feerly.com
                   </a>
-                  <div className="flex items-center gap-5">
+                  <div className="flex gap-5">
                     {["instagram", "tiktok", "twitter"].map((icon) => (
-                      <a key={icon} href="#" className="relative h-7 w-7 transition-opacity hover:opacity-80">
-                        <Image src={`/icons/${icon}.png`} alt={icon} fill className="object-contain" sizes="28px" />
+                      <a key={icon} href="#" className="relative h-6 w-6 hover:opacity-80">
+                        <Image src={`/icons/${icon}.png`} alt={icon} fill className="object-contain" sizes="24px" />
                       </a>
                     ))}
                   </div>
@@ -311,8 +313,7 @@ export default function BurgerMenu({ open, onClose }: Props) {
   );
 }
 
-/* ── helpers UI ────────────────────────────────────────────── */
-
+/* — UI Helpers — */
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="grid gap-1">
@@ -321,60 +322,94 @@ function Row({ label, children }: { label: string; children: React.ReactNode }) 
     </div>
   );
 }
-
 function Divider() {
   return <div className="my-3 h-px bg-neutral-200/80" />;
 }
-
 function NavButton({
-  onClick, children, className,
-}: { onClick: () => void; children: React.ReactNode; className?: string }) {
+  onClick,
+  children,
+  className,
+}: {
+  onClick: () => void;
+  children: React.ReactNode;
+  className?: string;
+}) {
   return (
     <button
       onClick={onClick}
       className={`group w-full rounded-xl px-3 py-2 text-left hover:bg-neutral-50 active:bg-neutral-100 ${className ?? ""}`}
     >
-      <span className="inline-block transition-transform group-hover:translate-x-0.5">{children}</span>
+      <span className="inline-block transition-transform group-hover:translate-x-0.5">
+        {children}
+      </span>
     </button>
   );
 }
-
-function NavLink({ href, children, onClick }: { href: string; children: React.ReactNode; onClick?: () => void }) {
+function NavLink({
+  href,
+  children,
+  onClick,
+}: {
+  href: string;
+  children: React.ReactNode;
+  onClick?: () => void;
+}) {
   return (
-    <Link href={href} onClick={onClick} className="w-full rounded-xl px-3 py-2 hover:bg-neutral-50 active:bg-neutral-100">
+    <Link
+      href={href}
+      onClick={onClick}
+      className="w-full rounded-xl px-3 py-2 hover:bg-neutral-50 active:bg-neutral-100"
+    >
       {children}
     </Link>
   );
 }
 
-/* ── Account Settings (только для авторизованного) ─────────── */
-
-function AccountSettingsPanel({ onClose, email }: { onClose: () => void; email: string }) {
+function AccountSettingsPanel({
+  onClose,
+  email,
+}: {
+  onClose: () => void;
+  email: string;
+}) {
   const [username, setUsername] = useState("");
   const [newEmail, setNewEmail] = useState(email);
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
-  const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
 
-  // подгружаем ник из профиля (для редактирования)
+  // чтобы кнопки работали независимо
+  const [savingProfile, setSavingProfile] = useState(false);
+  const [changingEmail, setChangingEmail] = useState(false);
+  const [changingPassword, setChangingPassword] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
   useEffect(() => {
     supabase.auth.getUser().then(async ({ data }) => {
       const uid = data.user?.id;
       if (!uid) return;
-      const { data: prof } = await supabase.from("profiles").select("nickname").eq("id", uid).single();
+      const { data: prof } = await supabase
+        .from("profiles")
+        .select("nickname")
+        .eq("id", uid)
+        .single();
       setUsername(prof?.nickname ?? "");
     });
   }, []);
 
   async function postJSON(url: string, body: unknown) {
-    const res = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+    const res = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
     if (!res.ok) throw new Error(await res.text());
     return res.json();
   }
 
   async function saveProfile() {
-    setLoading(true);
+    setMsg(null);
+    setSavingProfile(true);
     try {
       const { data } = await supabase.auth.getUser();
       const uid = data.user?.id;
@@ -382,82 +417,159 @@ function AccountSettingsPanel({ onClose, email }: { onClose: () => void; email: 
       await supabase.from("profiles").upsert({ id: uid, nickname: username });
       setMsg("Profile saved.");
     } catch (e) {
-      setMsg(errMsg(e));
+      setMsg(e instanceof Error ? e.message : String(e));
     } finally {
-      setLoading(false);
+      setSavingProfile(false);
     }
   }
 
   async function changeEmail() {
-    setLoading(true);
+    setMsg(null);
+    setChangingEmail(true);
     try {
       await postJSON("/api/account/change-email", { newEmail });
-      setMsg("Email change requested. Check your inbox to confirm.");
+      setMsg("Email change requested. Please confirm via the link in your inbox.");
     } catch (e) {
-      setMsg(errMsg(e));
+      setMsg(e instanceof Error ? e.message : String(e));
     } finally {
-      setLoading(false);
+      setChangingEmail(false);
     }
   }
 
   async function changePassword() {
-    setLoading(true);
+    setMsg(null);
+    setChangingPassword(true);
     try {
-      await postJSON("/api/account/change-password", { currentPassword, newPassword });
+      await postJSON("/api/account/change-password", {
+        currentPassword,
+        newPassword,
+      });
       setMsg("Password changed.");
+      setCurrentPassword("");
+      setNewPassword("");
     } catch (e) {
-      setMsg(errMsg(e));
+      setMsg(e instanceof Error ? e.message : String(e));
     } finally {
-      setLoading(false);
+      setChangingPassword(false);
+    }
+  }
+
+  async function deleteAccount() {
+    if (!confirm("Delete account permanently? This action cannot be undone.")) return;
+    setMsg(null);
+    setDeleting(true);
+    try {
+      // Требуется серверный роут с сервис-ключом Supabase
+      await postJSON("/api/account/delete", {});
+      setMsg("Account deletion requested. You will be signed out.");
+      await supabase.auth.signOut();
+      window.location.href = "/";
+    } catch (e) {
+      setMsg(e instanceof Error ? e.message : String(e));
+    } finally {
+      setDeleting(false);
     }
   }
 
   return (
-    <div className="relative rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm">
+    <div className="relative rounded-2xl border border-neutral-200 bg-white p-4 md:p-5 shadow-sm">
       <button
         onClick={onClose}
         aria-label="Close account panel"
-        className="absolute right-3 top-3 grid h-8 w-8 place-items-center rounded-xl bg-black/5 hover:bg-black/10"
+        className="absolute right-3 top-3 grid h-8 w-8 place-items-center rounded-xl hover:bg-black/5"
       >
-        <div className="relative h-4 w-4">
-          <span className="absolute inset-x-0 top-1/2 -translate-y-1/2 block h-[2px] bg-black rotate-45" />
-          <span className="absolute inset-x-0 top-1/2 -translate-y-1/2 block h-[2px] bg-black -rotate-45" />
-        </div>
+        ✕
       </button>
 
-      <h3 className="mb-2 text-[16px] font-semibold">Account Settings</h3>
-      {msg && <div className="mb-3 rounded-lg bg-emerald-50 px-3 py-2 text-[13px] text-emerald-800">{msg}</div>}
+      <h3 className="mb-3 text-[15px] md:text-[16px] font-semibold">Account Settings</h3>
+      {msg && (
+        <div className="mb-4 rounded-lg bg-emerald-50 px-3 py-2 text-[13px] text-emerald-800">
+          {msg}
+        </div>
+      )}
 
-      {/* Username (profile) */}
-      <Row label="Username">
-        <input value={username} onChange={(e) => setUsername(e.target.value)} className="w-full rounded-xl border px-3 py-2 text-[15px]" />
+      {/* Username */}
+      <div className="mb-4">
+        <div className="mb-1 text-[13px] text-neutral-600">Username</div>
+        <input
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          className="m-input w-full border border-neutral-200 bg-white"
+        />
         <div className="mt-2">
-          <button onClick={saveProfile} disabled={loading} className="h-9 rounded-xl bg-neutral-900 px-3 text-white">
-            Save username
+          <button
+            onClick={saveProfile}
+            disabled={savingProfile}
+            className="m-btn rounded-xl bg-neutral-900 px-4 text-white disabled:opacity-60"
+          >
+            {savingProfile ? "Saving…" : "Save username"}
           </button>
         </div>
-      </Row>
+      </div>
 
       {/* Email */}
-      <Row label="Email">
-        <input type="email" value={newEmail} onChange={(e) => setNewEmail(e.target.value)} className="w-full rounded-xl border px-3 py-2 text-[15px]" />
+      <div className="mb-4">
+        <div className="mb-1 text-[13px] text-neutral-600">Email</div>
+        <input
+          type="email"
+          value={newEmail}
+          onChange={(e) => setNewEmail(e.target.value)}
+          className="m-input w-full border border-neutral-200 bg-white"
+        />
         <div className="mt-2">
-          <button onClick={changeEmail} disabled={loading} className="h-9 rounded-xl border px-3">
-            Change email
+          <button
+            onClick={changeEmail}
+            disabled={changingEmail}
+            className="m-btn rounded-xl border px-4 disabled:opacity-60"
+          >
+            {changingEmail ? "Sending…" : "Change email"}
           </button>
         </div>
-      </Row>
+      </div>
 
       {/* Password */}
-      <Row label="Change Password">
-        <input type="password" placeholder="Current password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} className="mb-2 w-full rounded-xl border px-3 py-2" />
-        <input type="password" placeholder="New password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} className="w-full rounded-xl border px-3 py-2" />
+      <div className="mb-4">
+        <div className="mb-1 text-[13px] text-neutral-600">Change Password</div>
+        <input
+          type="password"
+          placeholder="Current password"
+          value={currentPassword}
+          onChange={(e) => setCurrentPassword(e.target.value)}
+          className="m-input mb-2 w-full border border-neutral-200 bg-white"
+        />
+        <input
+          type="password"
+          placeholder="New password (8+ chars)"
+          value={newPassword}
+          onChange={(e) => setNewPassword(e.target.value)}
+          className="m-input w-full border border-neutral-200 bg-white"
+        />
         <div className="mt-2">
-          <button onClick={changePassword} disabled={loading} className="h-9 rounded-xl border px-3">
-            Change password
+          <button
+            onClick={changePassword}
+            disabled={changingPassword || newPassword.length < 8}
+            className="m-btn rounded-xl border px-4 disabled:opacity-60"
+          >
+            {changingPassword ? "Updating…" : "Change password"}
           </button>
         </div>
-      </Row>
+      </div>
+
+      {/* Danger zone */}
+      <div className="mt-5 rounded-xl border border-red-200 bg-red-50 px-3 py-3">
+        <div className="mb-2 text-[13px] font-medium text-red-700">Danger zone</div>
+        <button
+          onClick={deleteAccount}
+          disabled={deleting}
+          className="m-btn w-full rounded-xl bg-red-600 text-white disabled:opacity-60"
+        >
+          {deleting ? "Deleting…" : "Delete account"}
+        </button>
+        <p className="mt-2 text-[12px] text-red-700/80">
+          This will permanently remove your account and profile data.
+        </p>
+      </div>
     </div>
   );
 }
+

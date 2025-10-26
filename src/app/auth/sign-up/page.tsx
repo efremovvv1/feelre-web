@@ -1,4 +1,3 @@
-// src/app/auth/sign-up/page.tsx
 "use client";
 
 import { useState } from "react";
@@ -23,7 +22,7 @@ export default function SignUpPage() {
 
   const validate = () => {
     if (!nickname.trim()) return "Please enter a nickname.";
-    if (!email.includes("@")) return "Please enter a valid email.";
+    if (!/^\S+@\S+\.\S+$/.test(email)) return "Please enter a valid email.";
     if (password.length < 6) return "Password must be at least 6 characters.";
     if (password !== password2) return "Passwords do not match.";
     if (!acceptPrivacy || !acceptTerms)
@@ -44,7 +43,6 @@ export default function SignUpPage() {
       password,
       options: {
         data: { nickname, country: country || null, newsletter },
-        // emailRedirectTo: `${window.location.origin}/auth/confirm`,
       },
     });
 
@@ -69,143 +67,152 @@ export default function SignUpPage() {
   };
 
   return (
-    <main className="content mx-auto max-w-[1100px] px-4 py-10">
-      <SetHeaderTitle title="Create an Account" />
+    <main className="content mx-auto max-w-[480px] px-4 py-6 md:py-10">
+      {/* десктопный заголовок + скрыть бургер */}
+      <SetHeaderTitle title="👋 Say Hi to FEELRE" hideMenu />
 
-      <div className="mx-auto w-[min(720px,92%)] rounded-2xl border border-black/10 bg-white/90 p-6 shadow-[0_18px_60px_-20px_rgba(0,0,0,.25)]">
-        {status.type === "error" && (
-          <div className="mb-4 rounded-xl bg-red-50 px-4 py-3 text-red-700">{status.msg}</div>
-        )}
-        {status.type === "ok" && (
-          <div className="mb-4 rounded-xl bg-emerald-50 px-4 py-3 text-emerald-800">{status.msg}</div>
-        )}
+      <div className="overflow-hidden rounded-3xl border border-black/10 bg-white/95 shadow-[0_12px_40px_rgba(0,0,0,0.08)]">
+        {/* Заголовок карточки (только мобайл) */}
+        <div className="md:hidden rounded-t-3xl bg-gradient-to-b from-[#EEE7FF] to-white px-5 py-6 text-center">
+          <h1 className="text-[19px] font-extrabold tracking-[-0.01em]">
+            👋 Say hi to <span className="text-[#6B66F6]">FEELRE</span>
+          </h1>
+          <p className="mt-1 text-[13px] text-neutral-600">
+            Create your account and start exploring.
+          </p>
+        </div>
 
-        <div className="grid gap-4">
-          <Field label="Nickname">
-            <input
-              className="w-full rounded-xl border border-neutral-300 px-3 py-2"
-              value={nickname}
-              onChange={(e) => setNickname(e.target.value)}
-              placeholder="Your nickname"
-            />
-          </Field>
+        <div className="px-5 md:px-6 pb-6 pt-4">
+          {status.type === "error" && (
+            <div className="mb-3 rounded-xl bg-red-50 px-4 py-2.5 text-[13px] text-red-700">
+              {status.msg}
+            </div>
+          )}
+          {status.type === "ok" && (
+            <div className="mb-3 rounded-xl bg-emerald-50 px-4 py-2.5 text-[13px] text-emerald-800">
+              {status.msg}
+            </div>
+          )}
 
-          <Field label="E-mail">
-            <input
-              className="w-full rounded-xl border border-neutral-300 px-3 py-2"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="name@domain.com"
-            />
-          </Field>
+          <div className="grid gap-3">
+            <Field label="Nickname">
+              <input
+                className="w-full rounded-xl border border-neutral-300 bg-white px-3.5 py-2.5 text-[14px] outline-none transition focus:border-[#9E73FA]"
+                value={nickname}
+                onChange={(e) => setNickname(e.target.value)}
+                placeholder="Your nickname"
+              />
+            </Field>
 
-          <Field label="Country (optional)">
-            <input
-              className="w-full rounded-xl border border-neutral-300 px-3 py-2"
-              value={country}
-              onChange={(e) => setCountry(e.target.value)}
-              placeholder="Germany"
-            />
-          </Field>
+            <Field label="E-mail">
+              <input
+                className="w-full rounded-xl border border-neutral-300 bg-white px-3.5 py-2.5 text-[14px] outline-none transition focus:border-[#9E73FA]"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="name@domain.com"
+              />
+            </Field>
 
-          <Field label="Password">
-            <input
-              className="w-full rounded-xl border border-neutral-300 px-3 py-2"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••"
-            />
-          </Field>
+            <Field label="Country (optional)">
+              <input
+                className="w-full rounded-xl border border-neutral-300 bg-white px-3.5 py-2.5 text-[14px] outline-none transition focus:border-[#9E73FA]"
+                value={country}
+                onChange={(e) => setCountry(e.target.value)}
+                placeholder="Germany"
+              />
+            </Field>
 
-          <Field label="Repeat Password">
-            <input
-              className="w-full rounded-xl border border-neutral-300 px-3 py-2"
-              type="password"
-              value={password2}
-              onChange={(e) => setPassword2(e.target.value)}
-              placeholder="••••••"
-            />
-          </Field>
+            <Field label="Password">
+              <input
+                className="w-full rounded-xl border border-neutral-300 bg-white px-3.5 py-2.5 text-[14px] outline-none transition focus:border-[#9E73FA]"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••"
+              />
+            </Field>
 
-          {/* agreements */}
-          <label className="flex items-start gap-3 text-[14px]">
-            <input
-              type="checkbox"
-              className="mt-1"
+            <Field label="Repeat Password">
+              <input
+                className="w-full rounded-xl border border-neutral-300 bg-white px-3.5 py-2.5 text-[14px] outline-none transition focus:border-[#9E73FA]"
+                type="password"
+                value={password2}
+                onChange={(e) => setPassword2(e.target.value)}
+                placeholder="••••••"
+              />
+            </Field>
+
+            {/* Agreements */}
+            <Checkbox
               checked={acceptPrivacy}
-              onChange={(e) => setAcceptPrivacy(e.target.checked)}
+              onChange={setAcceptPrivacy}
+              label={
+                <>
+                  I accept the{" "}
+                  <Link href="/privacy" className="text-[#5b54f2] underline">
+                    Privacy Policy
+                  </Link>
+                  .
+                </>
+              }
             />
-            <span>
-              I accept the{" "}
-              <Link href="/privacy" className="text-[#5b54f2] underline">
-                Privacy Policy
-              </Link>
-              .
-            </span>
-          </label>
-
-          <label className="flex items-start gap-3 text-[14px]">
-            <input
-              type="checkbox"
-              className="mt-1"
+            <Checkbox
               checked={acceptTerms}
-              onChange={(e) => setAcceptTerms(e.target.checked)}
+              onChange={setAcceptTerms}
+              label={
+                <>
+                  I accept the{" "}
+                  <Link href="/terms" className="text-[#5b54f2] underline">
+                    Terms of Service
+                  </Link>
+                  .
+                </>
+              }
             />
-            <span>
-              I accept the{" "}
-              <Link href="/terms" className="text-[#5b54f2] underline">
-                Terms of Service
-              </Link>
-              .
-            </span>
-          </label>
-
-          <label className="flex items-start gap-3 text-[14px]">
-            <input
-              type="checkbox"
-              className="mt-1"
+            <Checkbox
               checked={newsletter}
-              onChange={(e) => setNewsletter(e.target.checked)}
+              onChange={setNewsletter}
+              label={<>I agree to receive FEELRE updates (optional).</>}
             />
-            <span>I agree to receive FEELRE news and updates (optional).</span>
-          </label>
 
-          {/* register button */}
-          <button
-            onClick={register}
-            disabled={status.type === "loading"}
-            className="mt-1 h-11 w-full rounded-xl bg-gradient-to-r from-[#B974FF] via-[#9E73FA] to-[#6B66F6] text-white disabled:opacity-60"
-          >
-            {status.type === "loading" ? "Please wait…" : "Register"}
-          </button>
+            {/* register */}
+            <button
+              onClick={register}
+              disabled={status.type === "loading"}
+              className="mt-1 h-11 w-full rounded-xl bg-gradient-to-r from-[#B974FF] via-[#9E73FA] to-[#6B66F6] text-[15px] font-semibold text-white transition disabled:opacity-60"
+            >
+              {status.type === "loading" ? "Please wait…" : "Register"}
+            </button>
 
-          {/* divider */}
-          <div className="my-2 grid grid-cols-[1fr_auto_1fr] items-center gap-3 text-center text-sm text-neutral-500">
-            <span className="h-px w-full bg-neutral-200" />
-            <span>Or register with</span>
-            <span className="h-px w-full bg-neutral-200" />
-          </div>
+            {/* divider */}
+            <div className="my-3 flex items-center justify-center gap-3 text-[12px] text-neutral-500">
+              <span className="h-px w-full bg-neutral-200" />
+              <span className="whitespace-nowrap">Or register with</span>
+              <span className="h-px w-full bg-neutral-200" />
+            </div>
 
-          {/* OAuth buttons with icons */}
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <SocialBtn onClick={() => oauth("google")}>
-              <GoogleIcon />
-              Google
-            </SocialBtn>
+            {/* OAuth */}
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+              <SocialBtn onClick={() => oauth("google")}>
+                <GoogleIcon />
+                Google
+              </SocialBtn>
+              <SocialBtn onClick={() => oauth("apple")}>
+                <AppleIcon />
+                Apple
+              </SocialBtn>
+            </div>
 
-            <SocialBtn onClick={() => oauth("apple")}>
-              <AppleIcon />
-              Apple
-            </SocialBtn>
-          </div>
-
-          <div className="mt-2 text-center text-sm">
-            Already have an account?{" "}
-            <Link href="/auth/sign-in" className="text-[#5b54f2] underline">
-              Sign in
-            </Link>
+            <div className="mt-2 text-center text-[13px]">
+              Already have an account?{" "}
+              <Link
+                href="/auth/sign-in"
+                className="font-semibold text-[#6B66F6] underline-offset-4 hover:underline"
+              >
+                Sign in
+              </Link>
+            </div>
           </div>
         </div>
       </div>
@@ -213,11 +220,34 @@ export default function SignUpPage() {
   );
 }
 
+/* UI helpers */
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label className="block">
-      <div className="mb-1 text-[13px] text-neutral-600">{label}</div>
+      <div className="mb-1 text-[12px] text-neutral-600">{label}</div>
       {children}
+    </label>
+  );
+}
+
+function Checkbox({
+  checked,
+  onChange,
+  label,
+}: {
+  checked: boolean;
+  onChange: (v: boolean) => void;
+  label: React.ReactNode;
+}) {
+  return (
+    <label className="flex items-start gap-2 text-[13px] leading-tight">
+      <input
+        type="checkbox"
+        className="mt-0.5 accent-[#9E73FA]"
+        checked={checked}
+        onChange={(e) => onChange(e.target.checked)}
+      />
+      <span>{label}</span>
     </label>
   );
 }
@@ -232,13 +262,14 @@ function SocialBtn({
   return (
     <button
       onClick={onClick}
-      className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-neutral-300 bg-white px-4 text-[15px] font-medium transition hover:bg-neutral-50"
+      className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-xl border border-neutral-300 bg-white px-4 text-[14px] font-medium transition hover:bg-neutral-50"
     >
       {children}
     </button>
   );
 }
 
+/* icons */
 function GoogleIcon() {
   return (
     <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden>

@@ -1,13 +1,14 @@
+// src/components/CookieBanner.tsx
 "use client";
 
 import { useEffect, useState } from "react";
-import CookieSettingsSheet, { CookieConsentStorage } from "./CookieSettingsSheet";
+import CookieSettingsSheet from "./CookieSettingsSheet";
+import { CookieConsentStorage } from "@/lib/cookie-consent";
 
 export default function CookieBanner() {
   const [openSheet, setOpenSheet] = useState(false);
   const [show, setShow] = useState(false);
 
-  // показываем, если нет сохранённого consent
   useEffect(() => {
     const c = CookieConsentStorage.read();
     setShow(!c);
@@ -46,22 +47,13 @@ export default function CookieBanner() {
           </div>
 
           <div className="mt-4 flex flex-wrap gap-3">
-            <button
-              onClick={acceptAll}
-              className="h-11 rounded-xl bg-gradient-to-r from-[#B974FF] via-[#9E73FA] to-[#6B66F6] px-5 text-white"
-            >
+            <button onClick={acceptAll} className="h-11 rounded-xl bg-gradient-to-r from-[#B974FF] via-[#9E73FA] to-[#6B66F6] px-5 text-white">
               Accept All
             </button>
-            <button
-              onClick={rejectAll}
-              className="h-11 rounded-xl border border-neutral-300 px-5"
-            >
+            <button onClick={rejectAll} className="h-11 rounded-xl border border-neutral-300 px-5">
               Reject All
             </button>
-            <button
-              onClick={() => setOpenSheet(true)}
-              className="ml-auto h-11 rounded-xl bg-neutral-900 px-5 text-white"
-            >
+            <button onClick={() => setOpenSheet(true)} className="ml-auto h-11 rounded-xl bg-neutral-900 px-5 text-white">
               Cookie Settings
             </button>
           </div>

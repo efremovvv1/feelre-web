@@ -49,28 +49,27 @@ export default function ProductGrid({
   };
 
   return (
-    <section className="w-full flex flex-col items-center">
+  <section className="w-full flex flex-col items-center">
+    <div
+      className="
+        w-full max-w-[1200px]
+        rounded-[16px] border border-[#2d69ff]/30
+        shadow-[0_18px_50px_-20px_rgba(30,58,138,.35)]
+        bg-gradient-to-b from-white/92 to-[#f7f1fb]/85
+        p-4 sm:p-5 md:p-6
+      "
+    >
       <div
         className="
-          w-full max-w-[1200px]
-          rounded-[16px] border border-[#2d69ff]/30
-          shadow-[0_18px_50px_-20px_rgba(30,58,138,.35)]
-          bg-gradient-to-b from-white/92 to-[#f7f1fb]/85
-          p-5 sm:p-6 md:p-7
+          grid gap-4 sm:gap-5 md:gap-6
+          grid-cols-2 md:grid-cols-4
         "
       >
-        {/* сетка карточек */}
-        <div
-          className="
-            grid gap-5 sm:gap-6 md:gap-7
-            grid-cols-2 md:grid-cols-4
-          "
-        >
-          {shown.map((p) => (
-            <ProductCard key={p.id} product={p} />
-          ))}
-        </div>
-
+        {shown.map((p) => (
+          <ProductCard key={p.id} product={p} />
+        ))}
+      </div>
+      
         {/* кнопки */}
         <div className="mt-6 flex justify-center gap-3 sm:gap-4">
           <button

@@ -3,15 +3,23 @@
 
 import { useEffect } from "react";
 
-export default function SetHeaderTitle({ title }: { title: string }) {
+export default function SetHeaderTitle({
+  title,
+  hideMenu = false,
+}: { title?: string; hideMenu?: boolean }) {
   useEffect(() => {
-    // ставим заголовок при монтировании
-    window.dispatchEvent(new CustomEvent("feelre:set-header-title", { detail: { title } }));
-    // возвращаем дефолт при уходе со страницы
+    window.dispatchEvent(
+      new CustomEvent("feelre:set-header-title", { detail: { title, hideMenu } })
+    );
     return () => {
-      window.dispatchEvent(new CustomEvent("feelre:set-header-title", { detail: { title: null } }));
+      // при размонтировании вернём дефолт
+      window.dispatchEvent(
+        new CustomEvent("feelre:set-header-title", {
+          detail: { title: undefined, hideMenu: false },
+        })
+      );
     };
-  }, [title]);
+  }, [title, hideMenu]);
 
   return null;
 }

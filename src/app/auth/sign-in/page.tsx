@@ -1,3 +1,4 @@
+// src/app/auth/sign-in/page.tsx
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
@@ -5,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import SetHeaderTitle from "@/components/SetHeaderTitle";
 
-// безопасное извлечение текста ошибки
+/* — helpers — */
 function getErrMessage(err: unknown): string {
   if (err instanceof Error) return err.message;
   if (typeof err === "string") return err;
@@ -16,6 +17,7 @@ function getErrMessage(err: unknown): string {
   }
 }
 
+/* — page — */
 export default function SignInPage() {
   const router = useRouter();
 
@@ -85,23 +87,29 @@ export default function SignInPage() {
   }
 
   return (
-    <main className="content mx-auto max-w-[560px] px-4 py-8">
-      <SetHeaderTitle title="Welcome to FEELRE" />
+    <main className="content mx-auto max-w-[520px] px-4 py-6 md:py-10">
+      {/* задаём заголовок в шапке и скрываем бургер */}
+      <SetHeaderTitle title="Welcome back !" hideMenu />
 
-      <div className="rounded-3xl border border-black/10 bg-white/90 shadow-[0_15px_60px_rgba(0,0,0,0.10)]">
-        <div className="rounded-t-3xl bg-gradient-to-b from-[#EEE7FF] to-white px-6 pb-1 pt-6 text-center">
-          
+      <div className="rounded-3xl border border-black/10 bg-white/95 shadow-[0_15px_60px_rgba(0,0,0,0.08)] overflow-hidden">
+        {/* header карточки */}
+        <div className="md:hidden rounded-t-3xl bg-gradient-to-b from-[#EEE7FF] to-white px-5 py-5 text-center">
+          <h1 className="text-[20px] font-extrabold tracking-[-0.01em]">Welcome back</h1>
+            <p className="mt-1 text-[13px] text-neutral-600">
+              Log in to continue your FEELRE journey.
+              </p>
         </div>
 
-        <div className="px-6 pb-6 pt-4">
+        {/* form */}
+        <div className="px-5 md:px-6 pb-6 pt-4">
           {msg && (
-            <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-[14px] text-red-700">
+            <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-[13px] md:text-[14px] text-red-700">
               {msg}
             </div>
           )}
 
-          <label className="mb-1 block text-[13px] text-neutral-600">
-            Enter your E-mail address :
+          <label className="mb-1 block text-[12px] md:text-[13px] text-neutral-600">
+            E-mail address
           </label>
           <input
             type="email"
@@ -112,7 +120,9 @@ export default function SignInPage() {
           />
 
           <div className="mb-1 flex items-center justify-between">
-            <label className="block text-[13px] text-neutral-600">Enter your password :</label>
+            <label className="block text-[12px] md:text-[13px] text-neutral-600">
+              Password
+            </label>
             <a
               href="/auth/forgot"
               className="text-[12px] text-[#6B66F6] underline-offset-4 hover:underline"
@@ -138,7 +148,7 @@ export default function SignInPage() {
             <span className="grid h-4 w-7 place-items-center rounded-full bg-neutral-300 peer-checked:bg-[#9E73FA]">
               <span className="h-[14px] w-[14px] translate-x-[-9px] rounded-full bg-white shadow transition peer-checked:translate-x-1" />
             </span>
-            Remember me.
+            Remember me
           </label>
 
           <button
@@ -151,7 +161,7 @@ export default function SignInPage() {
 
           <div className="my-4 flex items-center gap-3 text-[12px] text-neutral-500">
             <span className="h-px flex-1 bg-neutral-200" />
-            Or Log In With
+            Or log in with
             <span className="h-px flex-1 bg-neutral-200" />
           </div>
 
@@ -186,6 +196,7 @@ export default function SignInPage() {
   );
 }
 
+/* — small button component — */
 function SocialBtn({
   children,
   onClick,
