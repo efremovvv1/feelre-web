@@ -52,6 +52,12 @@ export default function BurgerMenu({ open, onClose }: Props) {
     );
   }, [region]);
 
+  const closeAnd = (fn: () => void) => {
+      onClose();
+      // даём фрейм/тик на начало анимации закрытия, затем выполняем действие
+      setTimeout(fn, 0);
+    };
+
   // auth watch
   useEffect(() => {
     let active = true;
@@ -264,30 +270,85 @@ export default function BurgerMenu({ open, onClose }: Props) {
 
                 {/* nav */}
                 <nav className="grid gap-1 text-[15px] md:text-[16px]">
-                  <NavButton onClick={() => window.dispatchEvent(new CustomEvent("feelre:open-panel", { detail: { panel: "about" } }))}>About Us</NavButton>
-                  <NavButton onClick={() => window.dispatchEvent(new CustomEvent("feelre:open-panel", { detail: { panel: "faq" } }))}>FAQ</NavButton>
+  {/* ABOUT / FAQ */}
+  <NavButton
+    onClick={() =>
+      closeAnd(() =>
+        window.dispatchEvent(
+          new CustomEvent("feelre:open-panel", { detail: { panel: "about" } })
+        )
+      )
+    }
+  >
+    About Us
+  </NavButton>
 
-                  <Divider />
-                  <NavButton onClick={() => window.dispatchEvent(new CustomEvent("feelre:open-impressum"))}>Imprint</NavButton>
-                  <NavButton onClick={() => window.dispatchEvent(new CustomEvent("feelre:open-cookies"))}>Cookie Settings</NavButton>
+  <NavButton
+    onClick={() =>
+      closeAnd(() =>
+        window.dispatchEvent(
+          new CustomEvent("feelre:open-panel", { detail: { panel: "faq" } })
+        )
+      )
+    }
+  >
+    FAQ
+  </NavButton>
 
-                  <Divider />
-                  <NavLink href="/privacy" onClick={onClose}>Privacy Policy</NavLink>
-                  <NavLink href="/terms" onClick={onClose}>Terms of Service</NavLink>
+  <Divider />
 
-                  <Divider />
-                  {sessionReady &&
-                    (isAuthed ? (
-                      <NavButton onClick={handleLogout} className="text-red-600 hover:bg-red-50">
-                        {signingOut ? "Signing out…" : "Log out"}
-                      </NavButton>
-                    ) : (
-                      <>
-                        <NavLink href="/auth/sign-in" onClick={onClose}>Sign in</NavLink>
-                        <NavLink href="/auth/sign-up" onClick={onClose}>Create account</NavLink>
-                      </>
-                    ))}
-                </nav>
+  {/* IMPRESSUM / COOKIES */}
+  <NavButton
+    onClick={() =>
+      closeAnd(() =>
+        window.dispatchEvent(new CustomEvent("feelre:open-impressum"))
+      )
+    }
+  >
+    Imprint
+  </NavButton>
+
+  <NavButton
+    onClick={() =>
+      closeAnd(() =>
+        window.dispatchEvent(new CustomEvent("feelre:open-cookies"))
+      )
+    }
+  >
+    Cookie Settings
+  </NavButton>
+
+  <Divider />
+
+  {/* эти уже закрываются, т.к. у <NavLink> стоит onClick={onClose} */}
+  <NavLink href="/privacy" onClick={onClose}>
+    Privacy Policy
+  </NavLink>
+  <NavLink href="/terms" onClick={onClose}>
+    Terms of Service
+  </NavLink>
+
+  <Divider />
+  {sessionReady &&
+    (isAuthed ? (
+      <NavButton
+        onClick={handleLogout}
+        className="text-red-600 hover:bg-red-50"
+      >
+        {signingOut ? "Signing out…" : "Log out"}
+      </NavButton>
+    ) : (
+      <>
+        <NavLink href="/auth/sign-in" onClick={onClose}>
+          Sign in
+        </NavLink>
+        <NavLink href="/auth/sign-up" onClick={onClose}>
+          Create account
+        </NavLink>
+      </>
+    ))}
+</nav>
+
 
                 <Divider />
 

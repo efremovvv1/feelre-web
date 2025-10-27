@@ -96,24 +96,42 @@ function ToggleRow({
 }) {
   return (
     <div className="flex items-center justify-between rounded-2xl border border-neutral-200 p-4">
-      <div>
+      <div className="min-w-0">
         <div className="text-[15px] font-medium">{label}</div>
-        {description && <div className="text-[13px] text-neutral-500">{description}</div>}
+        {description && (
+          <div className="text-[13px] text-neutral-500">{description}</div>
+        )}
       </div>
-      <label className="inline-flex cursor-pointer items-center">
+
+      {/* Тумблер */}
+      <label className="relative inline-flex cursor-pointer items-center select-none">
         <input
           type="checkbox"
-          className="peer hidden"
+          className="sr-only peer"
           checked={!!checked}
           onChange={(e) => onChange?.(e.target.checked)}
           disabled={disabled}
+          aria-label={label}
         />
         <span
-          className={`relative h-6 w-11 rounded-full ${disabled ? "bg-neutral-200" : "bg-neutral-300"} peer-checked:bg-[#9E73FA]`}
-        >
-          <span className="absolute left-[3px] top-1/2 h-5 w-5 -translate-y-1/2 rounded-full bg-white shadow transition-transform peer-checked:translate-x-5" />
-        </span>
+          className={[
+            // трек
+            "relative block h-7 w-12 rounded-full transition-colors duration-200",
+            disabled ? "bg-neutral-200" : "bg-neutral-300 peer-checked:bg-[#9E73FA]",
+            // focus-обводка (без outline-конфликтов)
+            "peer-focus-visible:ring-2 peer-focus-visible:ring-[#9E73FA] peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-white",
+            // Кружок — через ::before, чтобы работал peer-checked
+            "before:content-[''] before:absolute before:left-0.5 before:top-0.5",
+            "before:h-6 before:w-6 before:rounded-full before:bg-white before:shadow",
+            "before:transition-transform before:duration-200",
+            "peer-checked:before:translate-x-5",
+          ].join(" ")}
+        />
       </label>
     </div>
   );
 }
+
+
+
+

@@ -53,6 +53,15 @@ body {
   * { animation-duration: 0ms !important; transition-duration: 0ms !important; }
 }
 
+/* когда модалка/меню открыты */
+.scroll-locked {
+  overflow: hidden;
+  /* чёткий способ фиксировать позицию без прыжка страницы */
+  position: fixed;
+  width: 100%;
+}
+
+
 /* ───────────────────────────────
    Tailwind utilities (одно место!)
 ─────────────────────────────── */

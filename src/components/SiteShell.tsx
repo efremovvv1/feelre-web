@@ -16,38 +16,46 @@ export default function SiteShell({ children }: { children: React.ReactNode }) {
   const [openCookies, setOpenCookies] = useState(false);
 
   const pathname = usePathname();
-  const isAuth = pathname?.startsWith("/auth"); // <-- auth-страницы
+  const isAuth = pathname?.startsWith("/auth");
 
   useEffect(() => {
-    const onToggle = () => setIsBurgerOpen((v) => !v);
-    const onOpen = () => setIsBurgerOpen(true);
-    const onClose = () => setIsBurgerOpen(false);
-    const onImpressum = () => setOpenImpressum(true);
-    const onCookies = () => setOpenCookies(true);
+    const toggle = () => setIsBurgerOpen(v => !v);
+    const open = () => setIsBurgerOpen(true);
+    const close = () => setIsBurgerOpen(false);
+    const openImpr = () => setOpenImpressum(true);
+    const openCk = () => setOpenCookies(true);
 
-    window.addEventListener("feelre:toggle-menu", onToggle as EventListener);
-    window.addEventListener("feelre:open-menu", onOpen as EventListener);
-    window.addEventListener("feelre:close-menu", onClose as EventListener);
-    window.addEventListener("feelre:open-impressum", onImpressum as EventListener);
-    window.addEventListener("feelre:open-cookies", onCookies as EventListener);
+    window.addEventListener("feelre:toggle-menu", toggle);
+    window.addEventListener("feelre:open-menu", open);
+    window.addEventListener("feelre:close-menu", close);
+    window.addEventListener("feelre:open-impressum", openImpr);
+    window.addEventListener("feelre:open-cookies", openCk);
 
     return () => {
-      window.removeEventListener("feelre:toggle-menu", onToggle as EventListener);
-      window.removeEventListener("feelre:open-menu", onOpen as EventListener);
-      window.removeEventListener("feelre:close-menu", onClose as EventListener);
-      window.removeEventListener("feelre:open-impressum", onImpressum as EventListener);
-      window.removeEventListener("feelre:open-cookies", onCookies as EventListener);
+      window.removeEventListener("feelre:toggle-menu", toggle);
+      window.removeEventListener("feelre:open-menu", open);
+      window.removeEventListener("feelre:close-menu", close);
+      window.removeEventListener("feelre:open-impressum", openImpr);
+      window.removeEventListener("feelre:open-cookies", openCk);
     };
   }, []);
+
+  // если открыта любая модалка/меню — блокируем скролл страницы
+  const modalOpen = isBurgerOpen || openImpressum || openCookies;
+  useEffect(() => {
+    document.body.classList.toggle("scroll-locked", modalOpen);
+  }, [modalOpen]);
 
   return (
     <>
       <Header />
-      <main className="flex-1">{children}</main>
+      {/* ВАЖНО: только grow, без min-h-0 и overflow-x-hidden */}
+      <main className="grow">{children}</main>
       <Footer />
 
-      {/* не показываем бургер в /auth/* */}
-      {!isAuth && <BurgerMenu open={isBurgerOpen} onClose={() => setIsBurgerOpen(false)} />}
+      {!isAuth && (
+        <BurgerMenu open={isBurgerOpen} onClose={() => setIsBurgerOpen(false)} />
+      )}
 
       <ImpressumSheet open={openImpressum} onClose={() => setOpenImpressum(false)} />
       <CookieSettingsSheet open={openCookies} onClose={() => setOpenCookies(false)} />
