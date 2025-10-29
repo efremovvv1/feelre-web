@@ -1,11 +1,30 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import SetHeaderTitle from "@/components/SetHeaderTitle";
+import PasswordInput from "@/components/ui/PasswordInput";
 
-type Status = { type: "idle" | "loading" | "ok" | "error"; msg?: string };
+
+type Status =
+  | { type: "idle" }
+  | { type: "loading" }
+  | { type: "ok"; msg: string }
+  | { type: "error"; msg: string };
+
+  // --- Password strength helpers (0..5) ---
+function getPasswordScore(pw: string): number {
+  let s = 0;
+  if (pw.length >= 8) s++;
+  if (pw.length >= 12) s++;                 // длина бонусом
+  if (/[a-z]/.test(pw)) s++;
+  if (/[A-Z]/.test(pw)) s++;
+  if (/\d/.test(pw)) s++;
+  if (/[^A-Za-z0-9]/.test(pw)) s++;
+  // нормализуем к 0..5
+  return Math.max(0, Math.min(s, 5));
+}
 
 export default function SignUpPage() {
   const [nickname, setNickname] = useState("");
@@ -20,7 +39,9 @@ export default function SignUpPage() {
 
   const [status, setStatus] = useState<Status>({ type: "idle" });
 
-  const validate = () => {
+  const score = useMemo(() => getPasswordScore(password), [password]);
+
+  const validate = (): string | null => {
     if (!nickname.trim()) return "Please enter a nickname.";
     if (!/^\S+@\S+\.\S+$/.test(email)) return "Please enter a valid email.";
     if (password.length < 6) return "Password must be at least 6 characters.";
@@ -36,25 +57,46 @@ export default function SignUpPage() {
       setStatus({ type: "error", msg: problem });
       return;
     }
+
     setStatus({ type: "loading" });
 
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: { nickname, country: country || null, newsletter },
-      },
-    });
+    try {
+      const res = await fetch("/api/sign-up", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email,
+          password,
+          nickname,
+          country,
+          newsletter,
+          tosAccepted: acceptTerms,
+          privacyAccepted: acceptPrivacy,
+        }),
+      });
 
-    if (error) {
-      setStatus({ type: "error", msg: error.message });
-      return;
+      const data = (await res.json()) as { ok?: boolean; error?: string };
+
+      if (!res.ok) {
+        setStatus({
+          type: "error",
+          msg: data?.error || "Registration failed",
+        });
+        return;
+      }
+
+      setStatus({
+        type: "ok",
+        msg:
+          "We've sent a confirmation email. Please check your inbox and confirm your address.",
+      });
+    } catch (e) {
+      setStatus({
+        type: "error",
+        msg:
+          e instanceof Error ? e.message : "Unexpected error. Please try again.",
+      });
     }
-    setStatus({
-      type: "ok",
-      msg:
-        "We’ve sent a confirmation email. Please check your inbox and confirm the address.",
-    });
   };
 
   const oauth = async (provider: "google" | "apple") => {
@@ -123,23 +165,45 @@ export default function SignUpPage() {
               />
             </Field>
 
-            <Field label="Password">
-              <input
-                className="w-full rounded-xl border border-neutral-300 bg-white px-3.5 py-2.5 text-[14px] outline-none transition focus:border-[#9E73FA]"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••"
-              />
+           <Field label="Password">
+              <div className="relative">
+                <PasswordInput
+                  value={password}
+                  onChange={setPassword}
+                  placeholder="Your password"
+                  autoComplete="new-password"
+                  inputClassName="w-full rounded-2xl border border-neutral-300 bg-white px-4 py-3 text-[15px] outline-none transition focus:border-[#9E73FA]"
+                />
+
+                {/* Индикатор надёжности */}
+                <div className="mt-2 mb-1">
+                  {/* Strength bar как в reset */}
+                  <div className="mt-1 mb-1">
+                    <div className="h-2 w-full rounded-full bg-neutral-200">
+                      <div
+                        className="h-2 rounded-full bg-gradient-to-r from-[#B974FF] via-[#9E73FA] to-[#6B66F6] transition-all"
+                        style={{ width: `${(score / 5) * 100}%` }}
+                      />
+                    </div>
+                    <div className="mt-1 text-[12px] text-neutral-500">
+                      {score <= 1 && "Very weak"}
+                      {score === 2 && "Weak"}
+                      {score === 3 && "Okay"}
+                      {score === 4 && "Strong"}
+                      {score === 5 && "Very strong"}
+                    </div>
+                  </div>
+                </div>
+              </div>
             </Field>
 
             <Field label="Repeat Password">
-              <input
-                className="w-full rounded-xl border border-neutral-300 bg-white px-3.5 py-2.5 text-[14px] outline-none transition focus:border-[#9E73FA]"
-                type="password"
+              <PasswordInput
                 value={password2}
-                onChange={(e) => setPassword2(e.target.value)}
-                placeholder="••••••"
+                onChange={setPassword2}
+                placeholder="Repeat your password"
+                autoComplete="new-password"
+                inputClassName="w-full rounded-2xl border border-neutral-300 bg-white px-4 py-3 text-[15px] outline-none transition focus:border-[#9E73FA]"
               />
             </Field>
 
@@ -220,8 +284,14 @@ export default function SignUpPage() {
   );
 }
 
-/* UI helpers */
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
+/* — UI helpers — */
+function Field({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
   return (
     <label className="block">
       <div className="mb-1 text-[12px] text-neutral-600">{label}</div>
@@ -273,10 +343,22 @@ function SocialBtn({
 function GoogleIcon() {
   return (
     <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden>
-      <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.2 29.3 35 24 35c-7.2 0-13-5.8-13-13S16.8 9 24 9c3.3 0 6.3 1.2 8.6 3.3l5.7-5.7C34.5 3.3 29.6 1 24 1 10.7 1 0 11.7 0 25s10.7 24 24 24 24-10.7 24-24c0-1.6-.2-3.1-.4-4.5z" />
-      <path fill="#FF3D00" d="M6.3 14.1l6.6 4.8C14.5 16.1 18.9 13 24 13c3.3 0 6.3 1.2 8.6 3.3l5.7-5.7C34.5 3.3 29.6 1 24 1 15 1 7.6 6.2 4.1 14.1z" />
-      <path fill="#4CAF50" d="M24 49c5.2 0 10-1.8 13.7-4.9l-6.3-5.2C29.2 40.2 26.7 41 24 41c-5.3 0-9.7-2.8-12.1-7l-6.6 5C7.6 43.8 15 49 24 49z" />
-      <path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3C34.7 31.2 29.3 35 24 35c-5.3 0-9.7-2.8-12.1-7l-6.6 5C7.6 43.8 15 49 24 49c12.3 0 22-9.7 22-22 0-1.6-.2-3.1-.4-4.5z" />
+      <path
+        fill="#FFC107"
+        d="M43.6 20.5H42V20H24v8h11.3C33.7 32.2 29.3 35 24 35c-7.2 0-13-5.8-13-13S16.8 9 24 9c3.3 0 6.3 1.2 8.6 3.3l5.7-5.7C34.5 3.3 29.6 1 24 1 10.7 1 0 11.7 0 25s10.7 24 24 24 24-10.7 24-24c0-1.6-.2-3.1-.4-4.5z"
+      />
+      <path
+        fill="#FF3D00"
+        d="M6.3 14.1l6.6 4.8C14.5 16.1 18.9 13 24 13c3.3 0 6.3 1.2 8.6 3.3l5.7-5.7C34.5 3.3 29.6 1 24 1 15 1 7.6 6.2 4.1 14.1z"
+      />
+      <path
+        fill="#4CAF50"
+        d="M24 49c5.2 0 10-1.8 13.7-4.9l-6.3-5.2C29.2 40.2 26.7 41 24 41c-5.3 0-9.7-2.8-12.1-7l-6.6 5C7.6 43.8 15 49 24 49z"
+      />
+      <path
+        fill="#1976D2"
+        d="M43.6 20.5H42V20H24v8h11.3C34.7 31.2 29.3 35 24 35c-5.3 0-9.7-2.8-12.1-7l-6.6 5C7.6 43.8 15 49 24 49c12.3 0 22-9.7 22-22 0-1.6-.2-3.1-.4-4.5z"
+      />
     </svg>
   );
 }

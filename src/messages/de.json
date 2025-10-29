@@ -1,0 +1,11 @@
+{
+  "nav.home": "Startseite",
+  "nav.shop": "Shop",
+  "nav.about": "Über uns",
+  "auth.signIn": "Anmelden",
+  "auth.signUp": "Registrieren",
+  "auth.signOut": "Abmelden",
+  "cookie.title": "Wir verwenden Cookies",
+  "cookie.accept": "Akzeptieren",
+  "footer.copyright": "© FEELRE. Alle Rechte vorbehalten."
+}

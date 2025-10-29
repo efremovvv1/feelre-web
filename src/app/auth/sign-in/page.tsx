@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import SetHeaderTitle from "@/components/SetHeaderTitle";
+import PasswordInput from "@/components/ui/PasswordInput";
 
 /* — helpers — */
 function getErrMessage(err: unknown): string {
@@ -121,6 +122,7 @@ export default function SignInPage() {
             </label>
             <input
               type="email"
+              placeholder="Email"
               autoComplete="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -139,16 +141,15 @@ export default function SignInPage() {
                 Forgot password
               </a>
             </div>
-            <input
-              type="password"
-              autoComplete="current-password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="mb-3 w-full rounded-2xl border border-neutral-300 bg-white px-4 py-3 text-[15px] outline-none transition focus:border-[#9E73FA]"
-            />
+            <PasswordInput
+                value={password}
+                onChange={setPassword}
+                placeholder="Password"
+                autoComplete="current-password"
+              />
 
             {/* Remember me */}
-            <label className="mb-5 inline-flex cursor-pointer select-none items-center gap-2 text-[13px] text-neutral-700">
+            <label className="mb-5 mt-5 inline-flex cursor-pointer select-none items-center gap-2 text-[13px] text-neutral-700">
               <input
                 type="checkbox"
                 checked={remember}

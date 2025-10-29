@@ -2,16 +2,34 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import ModalBase from "@/components/ui/ModalBase";
+import { AnimatePresence, motion, useReducedMotion, type Transition } from "framer-motion";
 import { CookieConsentStorage, type Consent } from "@/lib/cookie-consent";
 
 type Props = { open: boolean; onClose: () => void };
 
 export default function CookieSettingsSheet({ open, onClose }: Props) {
+  const prefersReduced = useReducedMotion();
+  const tween: Transition = prefersReduced
+    ? { duration: 0 }
+    : { type: "tween", ease: [0.22, 0.16, 0.2, 1], duration: 0.22 };
+
   const [analytics, setAnalytics] = useState(true);
   const [marketing, setMarketing] = useState(false);
 
-  // подхватываем ранее сохранённые значения
+  // esc + scroll-lock
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+    window.addEventListener("keydown", onKey);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prev;
+    };
+  }, [open, onClose]);
+
+  // подхватываем ранее сохранённые значения при открытии
   useEffect(() => {
     if (!open) return;
     const c = CookieConsentStorage.read();
@@ -33,51 +51,103 @@ export default function CookieSettingsSheet({ open, onClose }: Props) {
   };
 
   return (
-    <ModalBase open={open} onClose={onClose} className="rounded-3xl border border-[#2d69ff]/35 bg-white shadow-xl">
-      <div className="relative rounded-t-3xl bg-gradient-to-b from-[#f2eaff] to-white p-5">
-        <h2 className="text-[22px] font-semibold">Cookie Settings</h2>
-        <button
-          onClick={onClose}
-          aria-label="Close"
-          className="absolute right-4 top-4 grid h-9 w-9 place-items-center rounded-xl bg-black/5 hover:bg-black/10"
-        >
-          <span className="relative block h-4 w-4">
-            <span className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-[2px] w-full rotate-45 bg-black" />
-            <span className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-[2px] w-full -rotate-45 bg-black" />
-          </span>
-        </button>
-      </div>
+    <AnimatePresence>
+      {open && (
+        <>
+          {/* overlay */}
+          <motion.div
+            className="fixed inset-0 z-[90] bg-black/40 backdrop-blur-[1px]"
+            onClick={onClose}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={tween}
+          />
 
-      <div className="px-6 pb-6">
-        <p className="mb-4 text-[15px] text-neutral-700">
-          We use cookies for essential functionality, analytics and marketing. You can change your preferences anytime.
-        </p>
-
-        <div className="space-y-3">
-          <ToggleRow label="Necessary" checked disabled description="Required for the site to work." />
-          <ToggleRow label="Analytics" checked={analytics} onChange={setAnalytics} description="Helps us improve FEELRE." />
-          <ToggleRow label="Marketing" checked={marketing} onChange={setMarketing} description="Personalised offers and reminders." />
-        </div>
-
-        <div className="mt-5 flex flex-wrap gap-3">
-          <button
-            className="h-11 rounded-xl bg-gradient-to-r from-[#B974FF] via-[#9E73FA] to-[#6B66F6] px-5 text-white"
-            onClick={() => save({ analytics: true, marketing: true })}
+          {/* sheet */}
+          <motion.aside
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="cookie-title"
+            className="fixed left-1/2 top-6 z-[95] w-[92%] -translate-x-1/2 md:top-12 md:max-w-[760px]"
+            initial={{ y: -28, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: -28, opacity: 0 }}
+            transition={tween}
           >
-            Accept all
-          </button>
-          <button
-            className="h-11 rounded-xl border border-neutral-300 px-5"
-            onClick={() => save({ analytics: false, marketing: false })}
-          >
-            Reject all
-          </button>
-          <button className="ml-auto h-11 rounded-xl bg-neutral-900 px-5 text-white" onClick={() => save()}>
-            Save preferences
-          </button>
-        </div>
-      </div>
-    </ModalBase>
+            <div className="rounded-3xl border border-black/10 bg-white shadow-[0_12px_48px_rgba(0,0,0,0.16)]">
+              {/* header */}
+              <div className="relative rounded-t-3xl bg-gradient-to-b from-[#EEE7FF] to-white px-5 py-5 md:px-6">
+                <h2 id="cookie-title" className="text-[20px] md:text-[22px] font-extrabold tracking-[-0.01em]">
+                  Cookie settings
+                </h2>
+                <button
+                  onClick={onClose}
+                  aria-label="Close"
+                  className="absolute right-3 top-3 grid h-9 w-9 place-items-center rounded-xl hover:bg-black/5"
+                >
+                  <span className="relative block h-4 w-4">
+                    <span className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-[2px] w-full rotate-45 bg-black" />
+                    <span className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-[2px] w-full -rotate-45 bg-black" />
+                  </span>
+                </button>
+              </div>
+
+              {/* content */}
+              <div className="px-5 pb-5 pt-3 md:px-6 md:pb-6">
+                <p className="mb-4 text-[14px] md:text-[15px] text-neutral-700">
+                  We use cookies for essential functionality, analytics, and marketing. You can change your
+                  preferences anytime.
+                </p>
+
+                <div className="space-y-3">
+                  <ToggleRow
+                    label="Necessary"
+                    checked
+                    disabled
+                    description="Required for the site to work."
+                  />
+                  <ToggleRow
+                    label="Analytics"
+                    checked={analytics}
+                    onChange={setAnalytics}
+                    description="Helps us improve FEELRE."
+                  />
+                  <ToggleRow
+                    label="Marketing"
+                    checked={marketing}
+                    onChange={setMarketing}
+                    description="Personalised offers and reminders."
+                  />
+                </div>
+
+                {/* actions */}
+                <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+                  <button
+                    className="h-11 w-full rounded-xl bg-gradient-to-r from-[#B974FF] via-[#9E73FA] to-[#6B66F6] px-5 text-white sm:w-auto"
+                    onClick={() => save({ analytics: true, marketing: true })}
+                  >
+                    Accept all
+                  </button>
+                  <button
+                    className="h-11 w-full rounded-xl border border-neutral-300 px-5 sm:w-auto"
+                    onClick={() => save({ analytics: false, marketing: false })}
+                  >
+                    Reject all
+                  </button>
+                  <button
+                    className="h-11 w-full rounded-xl bg-neutral-900 px-5 text-white sm:ml-auto sm:w-auto"
+                    onClick={() => save()}
+                  >
+                    Save preferences
+                  </button>
+                </div>
+              </div>
+            </div>
+          </motion.aside>
+        </>
+      )}
+    </AnimatePresence>
   );
 }
 
@@ -96,18 +166,18 @@ function ToggleRow({
 }) {
   return (
     <div className="flex items-center justify-between rounded-2xl border border-neutral-200 p-4">
-      <div className="min-w-0">
+      <div className="min-w-0 pr-3">
         <div className="text-[15px] font-medium">{label}</div>
         {description && (
           <div className="text-[13px] text-neutral-500">{description}</div>
         )}
       </div>
 
-      {/* Тумблер */}
+      {/* toggle */}
       <label className="relative inline-flex cursor-pointer items-center select-none">
         <input
           type="checkbox"
-          className="sr-only peer"
+          className="peer sr-only"
           checked={!!checked}
           onChange={(e) => onChange?.(e.target.checked)}
           disabled={disabled}
@@ -115,12 +185,9 @@ function ToggleRow({
         />
         <span
           className={[
-            // трек
             "relative block h-7 w-12 rounded-full transition-colors duration-200",
             disabled ? "bg-neutral-200" : "bg-neutral-300 peer-checked:bg-[#9E73FA]",
-            // focus-обводка (без outline-конфликтов)
             "peer-focus-visible:ring-2 peer-focus-visible:ring-[#9E73FA] peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-white",
-            // Кружок — через ::before, чтобы работал peer-checked
             "before:content-[''] before:absolute before:left-0.5 before:top-0.5",
             "before:h-6 before:w-6 before:rounded-full before:bg-white before:shadow",
             "before:transition-transform before:duration-200",
@@ -131,7 +198,3 @@ function ToggleRow({
     </div>
   );
 }
-
-
-
-

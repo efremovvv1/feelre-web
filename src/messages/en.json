@@ -1,0 +1,14 @@
+{
+  "signup": {
+    "title": "Say Hi to FEELRE 👋",
+    "subtitle": "Create your account and start exploring.",
+    "nickname": "Nickname",
+    "email": "E-mail",
+    "country": "Country (optional)",
+    "password": "Password",
+    "repeatPassword": "Repeat Password",
+    "register": "Register",
+    "alreadyHaveAcc": "Already have an account?",
+    "signin": "Sign in"
+  }
+}

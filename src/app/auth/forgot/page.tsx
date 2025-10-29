@@ -3,23 +3,48 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { supabase } from "@/lib/supabase";
 import SetHeaderTitle from "@/components/SetHeaderTitle";
+
+function isValidEmail(v: string) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+}
 
 export default function ForgotPage() {
   const [email, setEmail] = useState("");
   const [msg, setMsg] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [ok, setOk] = useState(false);
 
   async function send() {
     setMsg(null);
+
+    if (!isValidEmail(email)) {
+      setMsg("Enter a valid email.");
+      return;
+    }
+
     setLoading(true);
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/auth/reset`,
-    });
-    setLoading(false);
-    if (error) return setMsg(error.message);
-    setMsg("Reset link sent. Check your inbox.");
+    try {
+      const res = await fetch("/api/forgot", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        throw new Error(data?.error || "Failed to request password reset");
+      }
+
+      setOk(true);
+      setMsg("Reset link sent. Check your inbox.");
+    } catch (e) {
+      setOk(false);
+      setMsg(e instanceof Error ? e.message : "Something went wrong");
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -54,7 +79,13 @@ export default function ForgotPage() {
           </div>
 
           {msg && (
-            <div className="mb-4 rounded-xl bg-emerald-50 px-4 py-3 text-emerald-800">
+            <div
+              className={`mb-4 rounded-xl px-4 py-3 text-[13px] ${
+                ok
+                  ? "bg-emerald-50 text-emerald-800"
+                  : "bg-red-50 text-red-700"
+              }`}
+            >
               {msg}
             </div>
           )}

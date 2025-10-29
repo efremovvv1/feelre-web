@@ -10,24 +10,34 @@ import {
   useReducedMotion,
 } from "framer-motion";
 import { useRouter } from "next/navigation";
+
 import { REGIONS } from "@/data/regions";
 import { supabase } from "@/lib/supabase";
+import ConfirmModal from "@/components/ui/ConfirmModal";
+import PasswordInput from "./ui/PasswordInput";
 
+// Types
+// -----------------------------------------------------------------------------
 type Props = { open: boolean; onClose: () => void };
+
 type Profile = { nickname: string | null };
 
+// Utils
+// -----------------------------------------------------------------------------
 const errMsg = (e: unknown) =>
   e instanceof Error ? e.message : typeof e === "string" ? e : "Unknown error";
 
+// Component
+// -----------------------------------------------------------------------------
 export default function BurgerMenu({ open, onClose }: Props) {
   const router = useRouter();
   const prefersReduced = useReducedMotion();
 
-  // prefs
+  // Prefs
   const [language, setLanguage] = useState("en");
   const [region, setRegion] = useState("DE");
 
-  // auth
+  // Auth
   const [sessionReady, setSessionReady] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
   const [email, setEmail] = useState<string | null>(null);
@@ -38,13 +48,14 @@ export default function BurgerMenu({ open, onClose }: Props) {
   const [accountOpen, setAccountOpen] = useState(false);
   const [signingOut, setSigningOut] = useState(false);
 
-  // prefs load
+  // Load prefs
   useEffect(() => {
     setLanguage(localStorage.getItem("feelre:lang") || "en");
     setRegion(localStorage.getItem("feelre:region") || "DE");
   }, []);
 
   useEffect(() => localStorage.setItem("feelre:lang", language), [language]);
+
   useEffect(() => {
     localStorage.setItem("feelre:region", region);
     window.dispatchEvent(
@@ -53,14 +64,15 @@ export default function BurgerMenu({ open, onClose }: Props) {
   }, [region]);
 
   const closeAnd = (fn: () => void) => {
-      onClose();
-      // даём фрейм/тик на начало анимации закрытия, затем выполняем действие
-      setTimeout(fn, 0);
-    };
+    onClose();
+    // Даем тик анимации закрытия, затем выполняем действие
+    setTimeout(fn, 0);
+  };
 
-  // auth watch
+  // Auth watch
   useEffect(() => {
     let active = true;
+
     supabase.auth.getSession().then(({ data }) => {
       if (!active) return;
       const u = data.session?.user ?? null;
@@ -118,10 +130,13 @@ export default function BurgerMenu({ open, onClose }: Props) {
   // ESC + scroll lock
   useEffect(() => {
     if (!open) return;
+
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
     window.addEventListener("keydown", onKey);
+
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
+
     return () => {
       window.removeEventListener("keydown", onKey);
       document.body.style.overflow = prev;
@@ -136,7 +151,7 @@ export default function BurgerMenu({ open, onClose }: Props) {
     <AnimatePresence>
       {open && (
         <>
-          {/* overlay */}
+          {/* Overlay */}
           <motion.div
             onClick={onClose}
             className="fixed inset-0 z-40 bg-black/25 backdrop-blur-sm"
@@ -146,7 +161,7 @@ export default function BurgerMenu({ open, onClose }: Props) {
             transition={{ duration: 0.2 }}
           />
 
-          {/* panel */}
+          {/* Panel */}
           <motion.aside
             className="fixed right-0 top-0 z-50 h-full w-[92%] max-w-[480px] p-3 sm:p-4 transform-gpu"
             initial={{ x: "100%", opacity: 0 }}
@@ -155,7 +170,7 @@ export default function BurgerMenu({ open, onClose }: Props) {
             transition={panelTransition}
           >
             <div className="h-full overflow-y-auto rounded-2xl bg-white shadow-[0_12px_40px_-16px_rgba(0,0,0,.25)] ring-1 ring-black/5">
-              {/* header */}
+              {/* Header */}
               <div className="relative p-4 md:p-5 border-b border-black/5">
                 <div className="flex items-center justify-between">
                   <button
@@ -166,7 +181,7 @@ export default function BurgerMenu({ open, onClose }: Props) {
                       }
                       setAccountOpen((v) => !v);
                     }}
-                    className="flex w-full items-center justify-between rounded-xl px-2 py-1 hover:bg-black/5"
+                    className="group flex w-full items-center justify-between rounded-xl px-2 py-1 hover:bg-black/5"
                   >
                     <div className="flex items-center gap-3">
                       <div className="grid h-10 w-10 place-items-center rounded-full bg-black/5">
@@ -179,6 +194,7 @@ export default function BurgerMenu({ open, onClose }: Props) {
                           />
                         </svg>
                       </div>
+
                       <div className="leading-tight text-left">
                         <div className="text-[15px] font-semibold text-neutral-900">
                           {sessionReady ? (isAuthed ? `@${displayName}` : "Guest") : "…"}
@@ -192,6 +208,7 @@ export default function BurgerMenu({ open, onClose }: Props) {
                         </div>
                       </div>
                     </div>
+
                     <motion.svg
                       width="18"
                       height="18"
@@ -220,9 +237,9 @@ export default function BurgerMenu({ open, onClose }: Props) {
                 </div>
               </div>
 
-              {/* content */}
+              {/* Content */}
               <div className="p-4 md:p-5 space-y-4">
-                {/* account panel */}
+                {/* Account panel */}
                 <AnimatePresence initial={false}>
                   {isAuthed && accountOpen && (
                     <motion.div
@@ -232,12 +249,16 @@ export default function BurgerMenu({ open, onClose }: Props) {
                       transition={panelTransition}
                       className="overflow-hidden"
                     >
-                      <AccountSettingsPanel email={email ?? ""} onClose={() => setAccountOpen(false)} />
+                      <AccountSettingsPanel
+                        email={email ?? ""}
+                        onClose={() => setAccountOpen(false)}
+                        onEmailChanged={(next) => setEmail(next)}
+                      />
                     </motion.div>
                   )}
                 </AnimatePresence>
 
-                {/* preferences */}
+                {/* Preferences */}
                 <div className="space-y-3">
                   <Row label="Language">
                     <select
@@ -251,6 +272,7 @@ export default function BurgerMenu({ open, onClose }: Props) {
                       <option value="ru">Русский 🇷🇺</option>
                     </select>
                   </Row>
+
                   <Row label="Region">
                     <select
                       value={region}
@@ -268,99 +290,113 @@ export default function BurgerMenu({ open, onClose }: Props) {
 
                 <Divider />
 
-                {/* nav */}
+                {/* Nav */}
                 <nav className="grid gap-1 text-[15px] md:text-[16px]">
-  {/* ABOUT / FAQ */}
-  <NavButton
-    onClick={() =>
-      closeAnd(() =>
-        window.dispatchEvent(
-          new CustomEvent("feelre:open-panel", { detail: { panel: "about" } })
-        )
-      )
-    }
-  >
-    About Us
-  </NavButton>
+                  {/* ABOUT / FAQ */}
+                  <NavButton
+                    onClick={() =>
+                      closeAnd(() =>
+                        window.dispatchEvent(
+                          new CustomEvent("feelre:open-panel", {
+                            detail: { panel: "about" },
+                          })
+                        )
+                      )
+                    }
+                  >
+                    About Us
+                  </NavButton>
 
-  <NavButton
-    onClick={() =>
-      closeAnd(() =>
-        window.dispatchEvent(
-          new CustomEvent("feelre:open-panel", { detail: { panel: "faq" } })
-        )
-      )
-    }
-  >
-    FAQ
-  </NavButton>
+                  <NavButton
+                    onClick={() =>
+                      closeAnd(() =>
+                        window.dispatchEvent(
+                          new CustomEvent("feelre:open-panel", {
+                            detail: { panel: "faq" },
+                          })
+                        )
+                      )
+                    }
+                  >
+                    FAQ
+                  </NavButton>
 
-  <Divider />
+                  <Divider />
 
-  {/* IMPRESSUM / COOKIES */}
-  <NavButton
-    onClick={() =>
-      closeAnd(() =>
-        window.dispatchEvent(new CustomEvent("feelre:open-impressum"))
-      )
-    }
-  >
-    Imprint
-  </NavButton>
+                  {/* IMPRESSUM / COOKIES */}
+                  <NavButton
+                    onClick={() =>
+                      closeAnd(() =>
+                        window.dispatchEvent(new CustomEvent("feelre:open-impressum"))
+                      )
+                    }
+                  >
+                    Imprint
+                  </NavButton>
 
-  <NavButton
-    onClick={() =>
-      closeAnd(() =>
-        window.dispatchEvent(new CustomEvent("feelre:open-cookies"))
-      )
-    }
-  >
-    Cookie Settings
-  </NavButton>
+                  <NavButton
+                    onClick={() =>
+                      closeAnd(() =>
+                        window.dispatchEvent(new CustomEvent("feelre:open-cookies"))
+                      )
+                    }
+                  >
+                    Cookie Settings
+                  </NavButton>
 
-  <Divider />
+                    <Divider />
 
-  {/* эти уже закрываются, т.к. у <NavLink> стоит onClick={onClose} */}
-  <NavLink href="/privacy" onClick={onClose}>
-    Privacy Policy
-  </NavLink>
-  <NavLink href="/terms" onClick={onClose}>
-    Terms of Service
-  </NavLink>
+                  {/* Эти уже закрываются, т.к. у <NavLink> стоит onClick={onClose} */}
+                  <NavLink href="/privacy" onClick={onClose}>
+                    Privacy Policy
+                  </NavLink>
+                  <NavLink href="/terms" onClick={onClose}>
+                    Terms of Service
+                  </NavLink>
 
-  <Divider />
-  {sessionReady &&
-    (isAuthed ? (
-      <NavButton
-        onClick={handleLogout}
-        className="text-red-600 hover:bg-red-50"
-      >
-        {signingOut ? "Signing out…" : "Log out"}
-      </NavButton>
-    ) : (
-      <>
-        <NavLink href="/auth/sign-in" onClick={onClose}>
-          Sign in
-        </NavLink>
-        <NavLink href="/auth/sign-up" onClick={onClose}>
-          Create account
-        </NavLink>
-      </>
-    ))}
-</nav>
+                  <Divider />
 
+                  {sessionReady &&
+                    (isAuthed ? (
+                      <NavButton
+                        onClick={handleLogout}
+                        className="text-red-600 hover:bg-red-50"
+                      >
+                        {signingOut ? "Signing out…" : "Log out"}
+                      </NavButton>
+                    ) : (
+                      <>
+                        <NavLink href="/auth/sign-in" onClick={onClose}>
+                          Sign in
+                        </NavLink>
+                        <NavLink href="/auth/sign-up" onClick={onClose}>
+                          Create account
+                        </NavLink>
+                      </>
+                    ))}
+                </nav>
 
                 <Divider />
 
-                {/* contacts */}
+                {/* Contacts */}
                 <div className="space-y-3">
-                  <a href="mailto:hello@feerly.com" className="block text-[14px] hover:text-neutral-700">
+                  <a
+                    href="mailto:hello@feerly.com"
+                    className="block text-[14px] hover:text-neutral-700"
+                  >
                     hello@feerly.com
                   </a>
+
                   <div className="flex gap-5">
                     {["instagram", "tiktok", "twitter"].map((icon) => (
                       <a key={icon} href="#" className="relative h-6 w-6 hover:opacity-80">
-                        <Image src={`/icons/${icon}.png`} alt={icon} fill className="object-contain" sizes="24px" />
+                        <Image
+                          src={`/icons/${icon}.png`}
+                          alt={icon}
+                          fill
+                          className="object-contain"
+                          sizes="24px"
+                        />
                       </a>
                     ))}
                   </div>
@@ -374,7 +410,8 @@ export default function BurgerMenu({ open, onClose }: Props) {
   );
 }
 
-/* — UI Helpers — */
+// UI Helpers
+// -----------------------------------------------------------------------------
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="grid gap-1">
@@ -383,9 +420,11 @@ function Row({ label, children }: { label: string; children: React.ReactNode }) 
     </div>
   );
 }
+
 function Divider() {
   return <div className="my-3 h-px bg-neutral-200/80" />;
 }
+
 function NavButton({
   onClick,
   children,
@@ -398,7 +437,9 @@ function NavButton({
   return (
     <button
       onClick={onClick}
-      className={`group w-full rounded-xl px-3 py-2 text-left hover:bg-neutral-50 active:bg-neutral-100 ${className ?? ""}`}
+      className={`group w-full rounded-xl px-3 py-2 text-left hover:bg-neutral-50 active:bg-neutral-100 ${
+        className ?? ""
+      }`}
     >
       <span className="inline-block transition-transform group-hover:translate-x-0.5">
         {children}
@@ -406,6 +447,7 @@ function NavButton({
     </button>
   );
 }
+
 function NavLink({
   href,
   children,
@@ -429,17 +471,24 @@ function NavLink({
 function AccountSettingsPanel({
   onClose,
   email,
+  onEmailChanged,
 }: {
   onClose: () => void;
   email: string;
+  onEmailChanged: (next: string) => void;
 }) {
   const [username, setUsername] = useState("");
   const [newEmail, setNewEmail] = useState(email);
+  useEffect(() => {
+    setNewEmail(email);
+  }, [email]);
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
-  const [msg, setMsg] = useState<string | null>(null);
 
-  // чтобы кнопки работали независимо
+  const [msg, setMsg] = useState<string | null>(null);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+
+  // независимые лоадеры
   const [savingProfile, setSavingProfile] = useState(false);
   const [changingEmail, setChangingEmail] = useState(false);
   const [changingPassword, setChangingPassword] = useState(false);
@@ -458,15 +507,7 @@ function AccountSettingsPanel({
     });
   }, []);
 
-  async function postJSON(url: string, body: unknown) {
-    const res = await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    });
-    if (!res.ok) throw new Error(await res.text());
-    return res.json();
-  }
+  // -------------------------
 
   async function saveProfile() {
     setMsg(null);
@@ -484,53 +525,101 @@ function AccountSettingsPanel({
     }
   }
 
-  async function changeEmail() {
-    setMsg(null);
-    setChangingEmail(true);
-    try {
-      await postJSON("/api/account/change-email", { newEmail });
-      setMsg("Email change requested. Please confirm via the link in your inbox.");
-    } catch (e) {
-      setMsg(e instanceof Error ? e.message : String(e));
-    } finally {
-      setChangingEmail(false);
-    }
+
+  // внутри AccountSettingsPanel в BurgerMenu.tsx
+async function changeEmail() {
+  setMsg(null);
+  setChangingEmail(true);
+  try {
+    const res = await fetch("/api/change-email", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        newEmail,
+        currentPassword,
+      }),
+    });
+
+    const json = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(json?.error || "Failed to change email");
+
+    // просто обновляем UI локально
+    onEmailChanged?.(newEmail);
+    setMsg("Email updated!");
+    setCurrentPassword("");
+  } catch (e) {
+    setMsg(e instanceof Error ? e.message : String(e));
+  } finally {
+    setChangingEmail(false);
   }
+}
+
+  // внутри AccountSettingsPanel
 
   async function changePassword() {
-    setMsg(null);
-    setChangingPassword(true);
-    try {
-      await postJSON("/api/account/change-password", {
+  setMsg(null);
+  setChangingPassword(true);
+  try {
+    const res = await fetch("/api/change-password", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email: newEmail || email,    // <-- передаём адрес
         currentPassword,
         newPassword,
-      });
-      setMsg("Password changed.");
-      setCurrentPassword("");
-      setNewPassword("");
-    } catch (e) {
-      setMsg(e instanceof Error ? e.message : String(e));
-    } finally {
-      setChangingPassword(false);
-    }
-  }
+      }),
+    });
+    const json = await res.json();
+    if (!res.ok) throw new Error(json?.error || "Request failed");
 
-  async function deleteAccount() {
-    if (!confirm("Delete account permanently? This action cannot be undone.")) return;
-    setMsg(null);
-    setDeleting(true);
-    try {
-      // Требуется серверный роут с сервис-ключом Supabase
-      await postJSON("/api/account/delete", {});
-      setMsg("Account deletion requested. You will be signed out.");
-      await supabase.auth.signOut();
-      window.location.href = "/";
-    } catch (e) {
-      setMsg(e instanceof Error ? e.message : String(e));
-    } finally {
-      setDeleting(false);
-    }
+    setMsg("Password changed. A confirmation email has been sent.");
+    setCurrentPassword("");
+    setNewPassword("");
+  } catch (e) {
+    setMsg(e instanceof Error ? e.message : String(e));
+  } finally {
+    setChangingPassword(false);
   }
+}
+
+  // открыть confirm-модалку
+  // внутри AccountSettingsPanel
+
+function askDelete() {
+  setConfirmOpen(true);
+}
+
+async function doDeleteConfirmed() {
+  setMsg(null);
+  setDeleting(true);
+  try {
+    // берём access_token для Authorization
+    const { data } = await supabase.auth.getSession();
+    const accessToken = data.session?.access_token ?? "";
+
+    const res = await fetch("/api/delete", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+      },
+    });
+
+    const json = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(json?.error || "Failed to delete account");
+
+    setMsg("Account deleted. You’ll receive a confirmation email. Signing out…");
+
+    // локально выходим и уходим на главную
+    await supabase.auth.signOut();
+    window.location.href = "/";
+  } catch (e) {
+    setMsg(e instanceof Error ? e.message : String(e));
+  } finally {
+    setDeleting(false);
+    setConfirmOpen(false);
+  }
+}
 
   return (
     <div className="relative rounded-2xl border border-neutral-200 bg-white p-4 md:p-5 shadow-sm">
@@ -543,6 +632,7 @@ function AccountSettingsPanel({
       </button>
 
       <h3 className="mb-3 text-[15px] md:text-[16px] font-semibold">Account Settings</h3>
+
       {msg && (
         <div className="mb-4 rounded-lg bg-emerald-50 px-3 py-2 text-[13px] text-emerald-800">
           {msg}
@@ -591,19 +681,17 @@ function AccountSettingsPanel({
       {/* Password */}
       <div className="mb-4">
         <div className="mb-1 text-[13px] text-neutral-600">Change Password</div>
-        <input
-          type="password"
+        <PasswordInput
           placeholder="Current password"
           value={currentPassword}
-          onChange={(e) => setCurrentPassword(e.target.value)}
-          className="m-input mb-2 w-full border border-neutral-200 bg-white"
+          onChange={setCurrentPassword}
+          inputClassName="m-input mb-2 w-full border border-neutral-200 bg-white"
         />
-        <input
-          type="password"
+        <PasswordInput
           placeholder="New password (8+ chars)"
           value={newPassword}
-          onChange={(e) => setNewPassword(e.target.value)}
-          className="m-input w-full border border-neutral-200 bg-white"
+          onChange={setNewPassword}
+          inputClassName="m-input w-full border border-neutral-200 bg-white"
         />
         <div className="mt-2">
           <button
@@ -620,12 +708,23 @@ function AccountSettingsPanel({
       <div className="mt-5 rounded-xl border border-red-200 bg-red-50 px-3 py-3">
         <div className="mb-2 text-[13px] font-medium text-red-700">Danger zone</div>
         <button
-          onClick={deleteAccount}
+          onClick={askDelete}
           disabled={deleting}
           className="m-btn w-full rounded-xl bg-red-600 text-white disabled:opacity-60"
         >
           {deleting ? "Deleting…" : "Delete account"}
         </button>
+
+        <ConfirmModal
+          open={confirmOpen}
+          title="Delete account?"
+          message="This will permanently remove your FEELRE account and profile data. This action cannot be undone."
+          confirmText="Delete"
+          cancelText="Cancel"
+          onCancel={() => setConfirmOpen(false)}
+          onConfirm={doDeleteConfirmed}
+        />
+
         <p className="mt-2 text-[12px] text-red-700/80">
           This will permanently remove your account and profile data.
         </p>
@@ -633,4 +732,5 @@ function AccountSettingsPanel({
     </div>
   );
 }
+
 
