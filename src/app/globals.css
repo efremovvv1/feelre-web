@@ -23,8 +23,8 @@ html,
 body { height: 100%; }
 
 body {
-  font-family: var(--font-mont), ui-sans-serif, system-ui, -apple-system, "Segoe UI",
-    Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji",
+  font-family: var(--font-mont), ui-sans-serif, system-ui,  "Segoe UI",
+    Roboto, "Helvetica Neue", Arial, "Noto Sans",
     "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   background: #fdf6f8 url("/images/background/background.png") no-repeat center top;
   background-size: 110% auto;
@@ -87,4 +87,69 @@ body {
   /* полезные утилиты для мобилок */
   .hide-mobile { @apply hidden sm:block; }   /* спрятать на xs/sm */
   .show-mobile { @apply sm:hidden; }         /* показать только на xs/sm */
+}
+
+/* ===== Tablet helpers (768–1024 px) ===== */
+@media (min-width: 768px) and (max-width: 1024px) {
+  /* Верхняя полоса (контейнер шапки): ниже и компактнее */
+  .tb\:header-bar {
+    height: 84px;
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+
+  /* Логотип чуть меньше */
+  .tb\:logo {
+    width: 190px;
+    height: 56px;
+  }
+
+  /* Кнопка-бургер компактнее */
+  .tb\:menu-btn {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+  }
+  .tb\:menu-line {
+    width: 28px;
+    height: 3.5px;
+  }
+
+  /* Заголовок в центре: одна строка + троеточие, не толкает соседние элементы */
+  .tb\:title {
+    font-size: 18px;
+    line-height: 1.2;
+    max-width: 58vw;          /* ограничиваем ширину, чтобы логотип+бургер влезали */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  /* Если захочешь на планшете полностью скрыть заголовок — повесь этот класс вместо .tb:title */
+  .tb\:title--hidden {
+    display: none !important;
+  }
+
+  /* Футер: мягкие боковые отступы и 2 колонки */
+  .tb\:footer {
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+  .tb\:footer-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px 24px;
+  }
+}
+
+/* ── Tablet extra utils (768–1023) ───────────────────────── */
+@media (min-width: 768px) and (max-width: 1023.98px) {
+  .tb\:px-6 { padding-left: 24px; padding-right: 24px; }
+  .tb\:py-8 { padding-top: 32px; padding-bottom: 32px; }
+  .tb\:gap-6 { gap: 24px; }
+  .tb\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .tb\:text-xs { font-size: 12px; }
+  .tb\:text-sm { font-size: 14px; }
+  .tb\:text-base { font-size: 16px; }
+  .tb\:items-start { align-items: flex-start; }
+  .tb\:justify-end { justify-content: flex-end; }
 }

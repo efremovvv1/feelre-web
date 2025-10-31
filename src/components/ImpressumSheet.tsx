@@ -3,18 +3,19 @@
 
 import { AnimatePresence, motion, useReducedMotion, type Transition } from "framer-motion";
 import { useEffect } from "react";
+import { useT } from "@/i18n/Provider";
 
 type Props = { open: boolean; onClose: () => void };
 
 export default function ImpressumSheet({ open, onClose }: Props) {
+  const { t } = useT();
   const prefersReduced = useReducedMotion();
 
-  // ✅ Явный тип Transition — снимает ошибки TS
   const tween: Transition = prefersReduced
     ? { duration: 0 }
     : { type: "tween", ease: [0.22, 0.16, 0.2, 1], duration: 0.22 };
 
-  // esc + scroll lock
+  // ESC + scroll lock
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
@@ -59,11 +60,11 @@ export default function ImpressumSheet({ open, onClose }: Props) {
               {/* Header */}
               <div className="relative rounded-t-3xl bg-gradient-to-b from-[#EEE7FF] to-white px-5 py-5 md:px-6">
                 <h2 id="impressum-title" className="text-[20px] md:text-[22px] font-extrabold tracking-[-0.01em]">
-                  Legal notice (Imprint)
+                  {t("impressum.title")}
                 </h2>
 
                 <button
-                  aria-label="Close"
+                  aria-label={t("impressum.closeAria")}
                   onClick={onClose}
                   className="absolute right-3 top-3 grid h-9 w-9 place-items-center rounded-xl hover:bg-black/5"
                 >
@@ -77,17 +78,24 @@ export default function ImpressumSheet({ open, onClose }: Props) {
               {/* Content */}
               <div className="px-5 pb-5 pt-3 md:px-6 md:pb-6">
                 <div className="prose max-w-none prose-p:my-3 prose-strong:font-semibold text-[14px] leading-[1.55] text-neutral-800">
-                  <p><strong>FEELRE — AI Shopping Assistant</strong></p>
-                  <p>Responsible person: Daniil Yefremov</p>
-                  <p>Email: <a href="mailto:hello@feerly.com">hello@feerly.com</a></p>
-                  <p>Address: [c/o or PO Box], [City], Germany</p>
+                  <p><strong>{t("impressum.brandLine")}</strong></p>
+                  <p>{t("impressum.responsible")}</p>
+                  <p>
+                    {t("impressum.email")}
+                    {" "}
+                    <a href="mailto:hello@feerly.com">hello@feerly.com</a>
+                  </p>
+                  <p>{t("impressum.address")}</p>
 
-                  <p><strong>Kleinunternehmer according to §19 UStG (no VAT charged).</strong></p>
+                  <p>{t("impressum.prototypeNote")}</p>
 
                   <p>
-                    <strong>Disclaimer:</strong><br />
-                    FEELRE provides AI-assisted product recommendations and affiliate links.
-                    We are not the seller of listed items and are not responsible for external shop content.
+                    <strong>{t("impressum.disclaimerTitle")}</strong><br />
+                    {t("impressum.disclaimerText")}
+                  </p>
+
+                  <p className="mt-3 text-neutral-500 text-[13px]">
+                    {t("impressum.copyright")}
                   </p>
                 </div>
               </div>

@@ -4,12 +4,15 @@
 import { useState } from "react";
 import Link from "next/link";
 import SetHeaderTitle from "@/components/SetHeaderTitle";
+import { useT } from "@/i18n/Provider";
 
 function isValidEmail(v: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
 }
 
 export default function ForgotPage() {
+  const { t } = useT();
+
   const [email, setEmail] = useState("");
   const [msg, setMsg] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -19,7 +22,7 @@ export default function ForgotPage() {
     setMsg(null);
 
     if (!isValidEmail(email)) {
-      setMsg("Enter a valid email.");
+      setMsg(t("auth.forgotPage.invalidEmail"));
       return;
     }
 
@@ -32,16 +35,13 @@ export default function ForgotPage() {
       });
 
       const data = await res.json().catch(() => ({}));
-
-      if (!res.ok) {
-        throw new Error(data?.error || "Failed to request password reset");
-      }
+      if (!res.ok) throw new Error(data?.error || t("auth.forgotPage.failed"));
 
       setOk(true);
-      setMsg("Reset link sent. Check your inbox.");
+      setMsg(t("auth.forgotPage.sent"));
     } catch (e) {
       setOk(false);
-      setMsg(e instanceof Error ? e.message : "Something went wrong");
+      setMsg(e instanceof Error ? e.message : t("auth.forgotPage.error"));
     } finally {
       setLoading(false);
     }
@@ -49,41 +49,25 @@ export default function ForgotPage() {
 
   return (
     <main className="content flex-1 px-4">
-      {/* заголовок в хедере (десктоп). На мобиле свой заголовок прямо в карточке */}
-      <SetHeaderTitle title="Forgot Password?" />
+      {/* десктопный заголовок */}
+      <SetHeaderTitle title={t("auth.forgotPage.title")} />
 
-      {/* Вертикальное центрирование: вычитаем примерную высоту шапки + футера */}
-      <section
-        className="
-          grid place-items-center
-          min-h-[calc(100svh-260px)] md:min-h-[calc(100svh-320px)]
-          py-6 md:py-10
-        "
-      >
-        <div
-          className="
-            w-[min(520px,92%)]
-            rounded-3xl border border-black/10 bg-white/90
-            p-5 md:p-6
-            shadow-[0_22px_80px_-24px_rgba(0,0,0,.30)]
-          "
-        >
-          {/* Заголовок/описание — только на мобиле */}
+      <section className="grid place-items-center min-h-[calc(100svh-260px)] md:min-h-[calc(100svh-320px)] py-6 md:py-10">
+        <div className="w-[min(520px,92%)] rounded-3xl border border-black/10 bg-white/90 p-5 md:p-6 shadow-[0_22px_80px_-24px_rgba(0,0,0,.30)]">
+          {/* моб-заголовок */}
           <div className="mb-3 text-center md:hidden">
             <h1 className="text-[20px] font-extrabold tracking-[-0.01em]">
-              Forgot Password?
+              {t("auth.forgotPage.title")}
             </h1>
             <p className="mt-1 text-[13px] text-neutral-600">
-              Enter your email and we’ll send you a reset link.
+              {t("auth.forgotPage.subtitle")}
             </p>
           </div>
 
           {msg && (
             <div
               className={`mb-4 rounded-xl px-4 py-3 text-[13px] ${
-                ok
-                  ? "bg-emerald-50 text-emerald-800"
-                  : "bg-red-50 text-red-700"
+                ok ? "bg-emerald-50 text-emerald-800" : "bg-red-50 text-red-700"
               }`}
             >
               {msg}
@@ -91,40 +75,31 @@ export default function ForgotPage() {
           )}
 
           <label className="mb-1 block text-[13px] text-neutral-600">
-            E-mail address
+            {t("auth.forgotPage.emailLabel")}
           </label>
           <input
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="name@domain.com"
-            className="
-              mb-4 w-full rounded-2xl border border-neutral-300 bg-white
-              px-4 py-3 text-[15px] outline-none transition
-              focus:border-[#9E73FA] focus:ring-4 focus:ring-[#B974FF]/20
-            "
+            placeholder={t("auth.forgotPage.placeholder")}
+            className="mb-4 w-full rounded-2xl border border-neutral-300 bg-white px-4 py-3 text-[15px] outline-none transition focus:border-[#9E73FA] focus:ring-4 focus:ring-[#B974FF]/20"
           />
 
           <button
             onClick={send}
             disabled={loading || !email}
-            className="
-              h-11 w-full rounded-2xl
-              bg-gradient-to-r from-[#B974FF] via-[#9E73FA] to-[#6B66F6]
-              text-white text-[15px] font-semibold
-              transition hover:brightness-[1.03] disabled:opacity-60
-            "
+            className="h-11 w-full rounded-2xl bg-gradient-to-r from-[#B974FF] via-[#9E73FA] to-[#6B66F6] text-white text-[15px] font-semibold transition hover:brightness-[1.03] disabled:opacity-60"
           >
-            {loading ? "Sending…" : "Send reset link"}
+            {loading ? t("auth.forgotPage.sending") : t("auth.forgotPage.send")}
           </button>
 
           <p className="mt-3 text-center text-[13px] text-neutral-600">
-            Remembered your password?{" "}
+            {t("auth.forgotPage.remembered")}{" "}
             <Link
               href="/auth/sign-in"
               className="font-semibold text-[#6B66F6] underline-offset-4 hover:underline"
             >
-              Back to Sign in
+              {t("auth.forgotPage.back")}
             </Link>
           </p>
         </div>

@@ -1,0 +1,301 @@
+{
+  "brand": "FEELRE",
+  "common": {
+    "email": "E-mail address",
+    "password": "Password",
+    "confirm": "Confirm",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "or": "Or",
+    "loading": "Loading…",
+    "save": "Save"
+  },
+  "auth": {
+    "forgot": "Forgot password",
+    "rememberMe": "Remember me",
+    "login": {
+      "title": "Welcome back !",
+      "cta": "Login",
+      "orWith": "Or log in with",
+      "noAccount": "Don’t have an account?",
+      "signUp": "Sign Up"
+    },
+    "signup": {
+      "title": "👋 Say hi to FEELRE",
+      "nickname": "Nickname",
+      "country": "Country (optional)",
+      "password": "Password",
+      "repeatPassword": "Repeat Password",
+      "register": "Register",
+      "orWith": "Or register with",
+      "haveAccount": "Already have an account?",
+      "signIn": "Sign in",
+      "strength": "Strength",
+      "weak": "Weak",
+      "ok": "Okay",
+      "strong": "Strong",
+      "veryStrong": "Very strong",
+      "subtitle": "Create an account and start using FEELRE.",
+  "emailSent": "We’ve sent a confirmation email. Check your inbox and click the link to verify your address.",
+  "agreements": {
+    "privacy": "I accept the <a href=\"/privacy\">Privacy Policy</a>.",
+    "terms": "I accept the <a href=\"/terms\">Terms of Service</a>.",
+    "newsletter": "I agree to receive FEELRE updates (optional)."
+  },
+  "errors": {
+    "nicknameRequired": "Please enter a nickname.",
+    "invalidEmail": "Enter a valid e-mail address.",
+    "passwordTooShort": "Password must be at least 6 characters.",
+    "passwordsMismatch": "Passwords do not match.",
+    "mustAccept": "Please accept the Terms of Service and Privacy Policy."
+  }
+    },
+    "reset": {
+      "title": "Reset Password",
+      "subtitle": "Create a new password for your account.",
+      "preparing": "Preparing recovery session",
+      "invalidLink": "The reset link is invalid or has expired. Please request a new one.",
+      "prepareFailed": "Failed to prepare recovery session.",
+      "sessionInactive": "The recovery session is not active. Use the link from the password reset email to open this page.",
+      "invalidNew": "Passwords must match, be at least 8 characters and reasonably strong.",
+      "new": "New password",
+      "repeat": "Re-type new password",
+      "save": "Reset Password",
+      "done": "Password updated. You can now sign in."
+    },
+    "forgotPage": {
+        "title": "Forgot Password ?",
+        "subtitle": "Enter your email and we'll send you a reset link.",
+        "emailLabel": "E-mail address",
+        "placeholder": "name@domain.com",
+        "send": "Send reset link",
+        "sending": "Sending...",
+        "remembered": "Remembered your password ?",
+        "back": "Back to Sign in",
+        "invalidEmail": "Enter a valid email.",
+        "sent": "Reset link sent. Check your inbox.",
+        "failed": "Failed to request password reset",
+        "error": "Something went wrong"
+    }
+  },
+  "menu": {
+    "accountSettings": "Account settings",
+    "guest": "Guest",
+    "notSignedIn": "Not signed in",
+    "checking": "Checking…",
+    "about": "About Us",
+    "faq": "FAQ",
+    "imprint": "Imprint",
+    "cookies": "Cookie Settings",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service",
+    "logout": "Log out",
+    "logoutProgress": "Signing out…",
+    "signin": "Sign in",
+    "signup": "Create account",
+    "language": "Language",
+    "region": "Region"
+  },
+  "account": {
+    "title": "Account Settings",
+    "username": "Username",
+    "saveUsername": "Save username",
+    "saving": "Saving…",
+    "saved": "Profile saved.",
+    "email": "E-mail",
+    "changeEmail": "Change email",
+    "sending": "Sending…",
+    "emailUpdated": "Email updated!",
+    "password": "Change Password",
+    "currentPassword": "Current password",
+    "newPassword": "New password (8+ chars)",
+    "updatePassword": "Change password",
+    "updating": "Updating…",
+    "passwordChanged": "Password changed. A confirmation email has been sent.",
+    "dangerZone": "Danger zone",
+    "deleteAccount": "Delete account",
+    "deleting": "Deleting…",
+    "deleteTitle": "Delete account?",
+    "deleteMsg": "This will permanently remove your account and profile data. This action cannot be undone.",
+    "deletedNotify": "Account deleted. You’ll receive a confirmation email. Signing out…"
+  },
+
+  "footer": {
+    "brandSlogan": "Buy what you really feel.",
+    "sections": {
+        "company": "Company",
+        "legal": "Legal",
+        "policies": "Policies",
+        "contacts": "Contacts"
+    },
+    "links": {
+        "about": "About",
+        "faq": "FAQ",
+        "impressum": "Imprint",
+        "cookies": "Cookie Settings",
+        "privacy": "Privacy Policy",
+        "terms": "Terms of Service"
+    },
+    "copyright": "All rights reserved."
+},
+"header": {
+    "mainTagline": "Ready to help you with a purchase."
+},
+
+    "about":{
+    "closeAria": "Close",
+    "sectionTitleSmall": "ABOUT US",
+    "hiPrefix": "Hi, I'm",
+    "brand":"FEELRE",
+    "hiTail":"— your personal AI shopping assistant.",
+    "body":"I can help you find gifts or any products you want in seconds. Just tell me your vibe, a budget, or the person you’re shopping for — and I’ll suggest great options.",
+    "more": {
+        "prefix": "Want to learn more ?",
+        "cta": "Go to FAQ"
+    }
+    },
+
+    "faq": {
+        "closeAria":"Close FAQ",
+        "sectionTitleSmall":"FAQ",
+        "footerNote":"not just search. It’s a conversation about what you truly want.",
+        "items": {
+            "0": {
+                "title":"What can I ask for ?",
+                "text":"You don’t need to name a product. Just tell me what you feel or want:\n• “I want to surprise my mom with something cozy.”\n• “I feel bored, need something inspiring.”\nYou don’t have to be specific — even one short sentence helps me understand your vibe. If you’re unsure, I’ll ask a few quick questions to guide you toward the right ideas."
+            },
+            "1": {
+                "title":"How does FEELRE understand your request ?",
+                "text":"I read your message and detect keywords, emotions, and intent. Then I match them with products that fit your vibe — from cozy to creative, from practical to inspiring."
+            },
+            "2": {
+                "title":"Where do the products come from ?",
+                "text":"Products are coming from trusted marketplaces — starting with Amazon, and soon many more. You’ll always see the store and price before visiting a product page."
+            },
+            "3": {
+                "title":"How do I start ?",
+                "text":"Just type a message below. Here are a few examples to begin:\n• “Gift for my sister, 25, likes yoga. Budget $80.”\n• “Something small and cute for a colleague.”\n• “Birthday idea for mom who loves cooking.”\nOnce you send it, I’ll instantly suggest ideas that match your tone and budget."
+            }
+        }
+    },
+
+  "impressum": {
+    "title": "Legal notice (Imprint)",
+    "closeAria": "Close",
+    "brandLine": "FEELRE — AI Shopping Assistant",
+    "responsible": "Project founder: D. Yefremov",
+    "email": "Email:",
+    "address": "Location: Germany (non-commercial prototype phase)",
+    "prototypeNote": "This website is a prototype for testing and demonstration. It may contain affiliate links (e.g., Amazon), but FEELRE does not conduct direct sales.",
+    "disclaimerTitle": "Disclaimer:",
+    "disclaimerText": "FEELRE provides AI-assisted product suggestions based on public data and APIs. We do not sell or ship products directly and are not responsible for external shop content or prices.",
+    "copyright": "© 2025 FEELRE. All rights reserved."
+    },
+    "cookies": {
+  "title": "Cookie settings",
+  "closeAria": "Close",
+  "intro": "We use cookies and similar technologies for essential functionality, analytics and marketing. You can change your preferences anytime.",
+  "categories": {
+    "necessary": "Necessary",
+    "analytics": "Analytics",
+    "marketing": "Marketing"
+  },
+  "descriptions": {
+    "necessary": "Required for the site to work.",
+    "analytics": "Helps us improve FEELRE.",
+    "marketing": "Personalised offers and reminders."
+  },
+  "buttons": {
+    "acceptAll": "Accept all",
+    "rejectAll": "Reject all",
+    "save": "Save preferences",
+    "settings": "Cookie Settings"
+  },
+  "banner": {
+    "title": "We use cookies",
+    "body": "We use cookies and similar technologies for essential functionality, analytics and marketing. Manage your preferences anytime in Cookie Settings."
+  }
+},
+
+"legal": {
+  "backButton": "Click here to return on main page",
+  "updatedLabel": "Last updated",
+  "privacy": {
+    "title": "Privacy Policy",
+    "intro": "We respect your privacy. This document explains how <strong>FEELRE</strong> collects, uses, and protects your personal data when you use our service.",
+
+    "collectTitle": "1. What Data We Collect",
+    "collectItems": {
+      "accountLabel": "Account information",
+      "accountDesc": "email, nickname, and language preferences provided during registration.",
+      "usageLabel": "Usage data",
+      "usageDesc": "messages you send, interactions with recommendations, and preferences.",
+      "techLabel": "Technical data",
+      "techDesc": "browser type, device, approximate region, and session cookies."
+    },
+
+    "useTitle": "2. How We Use Your Data",
+    "useItems": {
+      "improveLabel": "Improve experience",
+      "improveDesc": "to provide and enhance the FEELRE experience.",
+      "personalizeLabel": "Personalization",
+      "personalizeDesc": "to tailor recommendations and interface content.",
+      "securityLabel": "Security & prevention",
+      "securityDesc": "to ensure safety, prevent misuse, and analyze usage trends."
+    },
+
+    "shareTitle": "3. Data Sharing",
+    "shareText": "<strong>FEELRE</strong> does not sell or share personal data with third parties, except where required to operate core services (e.g. hosting or analytics). All partners must process data securely and comply with privacy laws.",
+
+    "cookiesTitle": "4. Cookies",
+    "cookiesLabel": "Cookies",
+    "cookiesText": "<strong>FEELRE</strong> uses essential, analytical, and optional cookies to improve performance and personalization. You can change preferences anytime in Cookie Settings.",
+
+    "retentionTitle": "5. Data Retention",
+    "retentionText": "We retain account data only as long as necessary to operate the service. You can request deletion of your account at any time via your profile settings.",
+
+    "rightsTitle": "6. Your Rights",
+    "rightsText": "You have the right to access, correct, or delete your personal data under applicable privacy laws (including GDPR where relevant). For requests, contact us at",
+
+    "updatesTitle": "7. Updates to This Policy",
+    "updatesText": "We may update this policy from time to time. The latest version will always be available on this page with a new 'Last updated' date.",
+
+    "contactTitle": "8. Contact",
+    "contactText": "For privacy questions or data requests, contact us at",
+    "contactEmail": "hello@feelre.com"
+    },  
+    "terms": {
+      "title": "Terms of Service",
+      "intro": "By using <strong>FEELRE</strong>, you agree to these terms. Please read them carefully.",
+      "serviceTitle": "1. Service Description",
+      "serviceItems": {
+        "0": "<strong>FEELRE</strong> is an AI-powered shopping assistant that suggests gifts and products based on your inputs.",
+        "1": "Recommendations may include affiliate links. We may earn a commission if you make a purchase — at no extra cost to you.",
+        "2": "We are <strong>not</strong> the seller or manufacturer of listed items."
+      },
+      "useTitle": "2. Acceptable Use",
+      "useItems": {
+        "0": "Use the Service lawfully. Do not share illegal, harmful, misleading, or infringing content.",
+        "1": "Do not attempt to abuse, disrupt, or reverse-engineer the Service.",
+        "2": "You must be at least 16 years old (or the age required by your local law) to use FEELRE."
+      },
+      "dataTitle": "3. Data & Privacy",
+      "dataText": "We process limited personal data to operate and improve <strong>FEELRE</strong>. See our <a href=\"/privacy\">Privacy Policy</a> for details.",
+      "accuracyTitle": "4. Accuracy of Results",
+      "accuracyText": "Suggestions are generated by AI and third-party sources (e.g., marketplaces). We do not guarantee availability, price, accuracy, or suitability. Always review product details on the seller’s page.",
+      "liabilityTitle": "5. Limitation of Liability",
+      "liabilityText": "<strong>FEELRE</strong> is not liable for losses arising from use of third-party links, purchases, or reliance on recommendations, to the extent permitted by law.",
+      "terminationTitle": "6. Suspension / Termination",
+      "terminationText": "We may suspend or terminate access if these terms are violated or to protect the Service and users.",
+      "changesTitle": "7. Changes to These Terms",
+      "changesText": "We may update the Terms from time to time. The latest version is always available on this page and applies upon publication.",
+      "contactTitle": "8. Contact",
+      "contactText": "Questions about these Terms?",
+      "contactEmail": "hello@feelre.com"
+    }
+  },
+  "products":{
+    "returnToChat": "Return to Chat",
+    "generateMore": "Generate More"
+  }
+}

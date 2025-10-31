@@ -5,8 +5,10 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import SetHeaderTitle from "@/components/SetHeaderTitle";
+import PasswordInput from "@/components/ui/PasswordInput";
+import { useT } from "@/i18n/Provider";
 
-/** простая оценка «силы» пароля */
+/** простая оценка «силы» пароля (0..5) */
 function scorePassword(pw: string) {
   let s = 0;
   if (pw.length >= 8) s++;
@@ -18,25 +20,23 @@ function scorePassword(pw: string) {
 }
 
 export default function ResetPasswordPage() {
+  const { t } = useT();
+
   const [pw, setPw] = useState("");
   const [pw2, setPw2] = useState("");
-  const [show1, setShow1] = useState(false);
-  const [show2, setShow2] = useState(false);
 
-  const [busy, setBusy] = useState(false);         // сабмит
-  const [bootBusy, setBootBusy] = useState(true);  // инициализация страницы
+  const [busy, setBusy] = useState(false);
+  const [bootBusy, setBootBusy] = useState(true);
   const [ok, setOk] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
-
   const [recoveryReady, setRecoveryReady] = useState(false);
 
-  // 1) При заходе по ссылке из письма вытаскиваем сессию восстановления
+  // 1) Подтягиваем recovery-сессию из ссылки
   useEffect(() => {
     let cancelled = false;
 
     async function init() {
       try {
-        // Вариант 1 (новый): redirect вида /auth/reset?code=...
         const url = new URL(window.location.href);
         const urlCode = url.searchParams.get("code");
 
@@ -47,8 +47,7 @@ export default function ResetPasswordPage() {
           return;
         }
 
-        // Вариант 2 (старый): во фрагменте #type=recovery&access_token=...&refresh_token=...
-        // Пример: https://app/reset#type=recovery&access_token=...&refresh_token=...
+        // старый формат: #type=recovery&access_token=...&refresh_token=...
         const hash = window.location.hash.replace(/^#/, "");
         const params = new URLSearchParams(hash);
         const type = params.get("type");
@@ -65,18 +64,9 @@ export default function ResetPasswordPage() {
           return;
         }
 
-        // Если ни один вариант не сработал — возможно ссылка устарела/неверна
-        if (!cancelled) {
-          setMsg(
-            "The reset link is invalid or has expired. Please request a new one."
-          );
-        }
-      } catch (e) {
-        if (!cancelled) {
-          setMsg(
-            e instanceof Error ? e.message : "Failed to prepare recovery session."
-          );
-        }
+        if (!cancelled) setMsg(t("auth.reset.invalidLink"));
+      } catch {
+        if (!cancelled) setMsg(t("auth.reset.prepareFailed"));
       } finally {
         if (!cancelled) setBootBusy(false);
       }
@@ -86,29 +76,24 @@ export default function ResetPasswordPage() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [t]);
 
   // 2) Валидация
   const strength = useMemo(() => scorePassword(pw), [pw]);
   const matches = pw === pw2;
   const valid = pw.length >= 8 && matches && strength >= 3;
 
-  // 3) Смена пароля
-  async function submit(e?: React.FormEvent) {
-    e?.preventDefault();
+  // 3) Смена пароля (без аргумента — никаких warning'ов)
+  async function submit() {
     setMsg(null);
 
     if (!recoveryReady) {
-      setMsg(
-        "Recovery session is not ready. Please open the link from your email again."
-      );
+      setMsg(t("auth.reset.sessionInactive"));
       return;
     }
 
     if (!valid) {
-      setMsg(
-        "Passwords must match, be at least 8 characters and reasonably strong."
-      );
+      setMsg(t("auth.reset.invalidNew"));
       return;
     }
 
@@ -125,35 +110,38 @@ export default function ResetPasswordPage() {
 
   return (
     <main className="content flex-1 px-4">
-      <SetHeaderTitle title="Reset Password" hideMenu />
+      <SetHeaderTitle title={t("auth.reset.title")} hideMenu />
 
       <section className="grid place-items-center min-h-[calc(100svh-260px)] md:min-h-[calc(100svh-320px)] py-6 md:py-10">
         <div className="w-[min(520px,92%)] overflow-hidden rounded-3xl border border-black/10 bg-white/95 shadow-[0_15px_60px_rgba(0,0,0,0.08)]">
           <div className="md:hidden rounded-t-3xl bg-gradient-to-b from-[#EEE7FF] to-white px-5 py-5 text-center">
             <h1 className="text-[20px] font-extrabold tracking-[-0.01em]">
-              Reset Password
+              {t("auth.reset.title")}
             </h1>
             <p className="mt-1 text-[13px] text-neutral-600">
-              Create a new password for your account.
+              {t("auth.reset.subtitle")}
             </p>
           </div>
 
-          <form onSubmit={submit} className="px-5 md:px-6 pb-6 pt-4">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              submit();
+            }}
+            className="px-5 md:px-6 pb-6 pt-4"
+          >
             {/* Статусы и блоки */}
             {bootBusy && (
               <div className="rounded-xl bg-neutral-50 px-4 py-3 text-neutral-700">
-                Preparing recovery session…
+                {t("auth.reset.preparing")}
               </div>
             )}
 
             {!bootBusy && ok && (
               <div className="rounded-xl bg-emerald-50 px-4 py-3 text-emerald-800">
-                Password updated. You can now{" "}
-                <Link
-                  href="/auth/sign-in"
-                  className="underline underline-offset-2"
-                >
-                  sign in
+                {t("auth.reset.done")}{" "}
+                <Link href="/auth/sign-in" className="underline underline-offset-2">
+                  {t("auth.signup.signIn")}
                 </Link>
                 .
               </div>
@@ -169,32 +157,22 @@ export default function ResetPasswordPage() {
 
                 {!recoveryReady && (
                   <div className="mb-4 rounded-xl bg-amber-50 px-4 py-3 text-amber-900">
-                    The recovery session is not active. Use the link from the
-                    password reset email to open this page.
+                    {t("auth.reset.sessionInactive")}
                   </div>
                 )}
 
                 {/* New password */}
                 <label className="mb-1 block text-[12px] md:text-[13px] text-neutral-600">
-                  New password
+                  {t("auth.reset.new")}
                 </label>
-                <div className="relative mb-3">
-                  <input
-                    type={show1 ? "text" : "password"}
-                    autoComplete="new-password"
+                <div className="mb-3">
+                  <PasswordInput
                     value={pw}
-                    onChange={(e) => setPw(e.target.value)}
+                    onChange={setPw}
+                    autoComplete="new-password"
                     placeholder="••••••••"
-                    className="w-full rounded-2xl border border-neutral-300 bg-white px-4 py-3 text-[15px] outline-none transition focus:border-[#9E73FA]"
+                    inputClassName="w-full rounded-2xl border border-neutral-300 bg-white px-4 py-3 text-[15px] outline-none transition focus:border-[#9E73FA]"
                   />
-                  <button
-                    type="button"
-                    aria-label={show1 ? "Hide password" : "Show password"}
-                    onClick={() => setShow1((v) => !v)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 rounded-md px-2 py-1 text-[12px] text-neutral-500 hover:bg-neutral-100"
-                  >
-                    {show1 ? "Hide" : "Show"}
-                  </button>
                 </div>
 
                 {/* Strength bar */}
@@ -206,39 +184,29 @@ export default function ResetPasswordPage() {
                     />
                   </div>
                   <div className="mt-1 text-[12px] text-neutral-500">
-                    {strength <= 1 && "Very weak"}
-                    {strength === 2 && "Weak"}
-                    {strength === 3 && "Okay"}
-                    {strength === 4 && "Strong"}
-                    {strength === 5 && "Very strong"}
+                    {strength <= 1 && t("auth.signup.weak")}
+                    {strength === 2 && t("auth.signup.weak")}
+                    {strength === 3 && t("auth.signup.ok")}
+                    {strength === 4 && t("auth.signup.strong")}
+                    {strength === 5 && t("auth.signup.veryStrong")}
                   </div>
                 </div>
 
                 {/* Repeat */}
                 <label className="mb-1 block text-[12px] md:text-[13px] text-neutral-600">
-                  Re-type new password
+                  {t("auth.reset.repeat")}
                 </label>
-                <div className="relative mb-5">
-                  <input
-                    type={show2 ? "text" : "password"}
-                    autoComplete="new-password"
+                <div className="mb-5">
+                  <PasswordInput
                     value={pw2}
-                    onChange={(e) => setPw2(e.target.value)}
+                    onChange={setPw2}
+                    autoComplete="new-password"
                     placeholder="••••••••"
-                    className={`w-full rounded-2xl border bg-white px-4 py-3 text-[15px] outline-none transition focus:border-[#9E73FA] ${
-                      pw2.length > 0 && pw !== pw2
-                        ? "border-red-300"
-                        : "border-neutral-300"
-                    }`}
+                    inputClassName={[
+                      "w-full rounded-2xl border bg-white px-4 py-3 text-[15px] outline-none transition focus:border-[#9E73FA]",
+                      pw2.length > 0 && pw !== pw2 ? "border-red-300" : "border-neutral-300",
+                    ].join(" ")}
                   />
-                  <button
-                    type="button"
-                    aria-label={show2 ? "Hide password" : "Show password"}
-                    onClick={() => setShow2((v) => !v)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 rounded-md px-2 py-1 text-[12px] text-neutral-500 hover:bg-neutral-100"
-                  >
-                    {show2 ? "Hide" : "Show"}
-                  </button>
                 </div>
 
                 <button
@@ -246,7 +214,7 @@ export default function ResetPasswordPage() {
                   disabled={!recoveryReady || !valid || busy}
                   className="h-11 w-full rounded-2xl bg-gradient-to-r from-[#B974FF] via-[#9E73FA] to-[#6B66F6] text-[15px] font-semibold text-white transition disabled:opacity-60"
                 >
-                  {busy ? "Saving…" : "Reset Password"}
+                  {busy ? t("common.loading") : t("auth.reset.save")}
                 </button>
               </>
             )}

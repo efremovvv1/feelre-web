@@ -16,6 +16,11 @@ import { supabase } from "@/lib/supabase";
 import ConfirmModal from "@/components/ui/ConfirmModal";
 import PasswordInput from "./ui/PasswordInput";
 
+import { useT } from "@/i18n/Provider";
+import LangSwitcher from "./LangSwitcher";
+
+
+
 // Types
 // -----------------------------------------------------------------------------
 type Props = { open: boolean; onClose: () => void };
@@ -34,7 +39,6 @@ export default function BurgerMenu({ open, onClose }: Props) {
   const prefersReduced = useReducedMotion();
 
   // Prefs
-  const [language, setLanguage] = useState("en");
   const [region, setRegion] = useState("DE");
 
   // Auth
@@ -50,11 +54,8 @@ export default function BurgerMenu({ open, onClose }: Props) {
 
   // Load prefs
   useEffect(() => {
-    setLanguage(localStorage.getItem("feelre:lang") || "en");
     setRegion(localStorage.getItem("feelre:region") || "DE");
   }, []);
-
-  useEffect(() => localStorage.setItem("feelre:lang", language), [language]);
 
   useEffect(() => {
     localStorage.setItem("feelre:region", region);
@@ -68,6 +69,8 @@ export default function BurgerMenu({ open, onClose }: Props) {
     // Даем тик анимации закрытия, затем выполняем действие
     setTimeout(fn, 0);
   };
+
+  const { t } = useT();
 
   // Auth watch
   useEffect(() => {
@@ -197,14 +200,11 @@ export default function BurgerMenu({ open, onClose }: Props) {
 
                       <div className="leading-tight text-left">
                         <div className="text-[15px] font-semibold text-neutral-900">
-                          {sessionReady ? (isAuthed ? `@${displayName}` : "Guest") : "…"}
+                          {sessionReady ? (isAuthed ? `@${displayName}` : t('menu.guest')) : "…"}
                         </div>
                         <div className="text-[12px] text-neutral-500">
                           {sessionReady
-                            ? isAuthed
-                              ? "Account settings"
-                              : "Not signed in"
-                            : "Checking…"}
+                            ? (isAuthed ? t('menu.accountSettings') : t('menu.notSignedIn')) : t('menu.checking')}
                         </div>
                       </div>
                     </div>
@@ -260,20 +260,11 @@ export default function BurgerMenu({ open, onClose }: Props) {
 
                 {/* Preferences */}
                 <div className="space-y-3">
-                  <Row label="Language">
-                    <select
-                      value={language}
-                      onChange={(e) => setLanguage(e.target.value)}
-                      className="m-input w-full border border-neutral-200 bg-white"
-                    >
-                      <option value="en">English 🇬🇧</option>
-                      <option value="de">Deutsch 🇩🇪</option>
-                      <option value="uk">Українська 🇺🇦</option>
-                      <option value="ru">Русский 🇷🇺</option>
-                    </select>
+                  <Row label={t('menu.language') as string}>
+                    <LangSwitcher className="m-input w-full border border-neutral-200 bg-white" />
                   </Row>
 
-                  <Row label="Region">
+                  <Row label={t('menu.region') as string}>
                     <select
                       value={region}
                       onChange={(e) => setRegion(e.target.value)}
@@ -298,13 +289,12 @@ export default function BurgerMenu({ open, onClose }: Props) {
                       closeAnd(() =>
                         window.dispatchEvent(
                           new CustomEvent("feelre:open-panel", {
-                            detail: { panel: "about" },
-                          })
+                            detail: { panel: "about" },})
                         )
                       )
                     }
                   >
-                    About Us
+                    {t('menu.about') as string}
                   </NavButton>
 
                   <NavButton
@@ -318,7 +308,7 @@ export default function BurgerMenu({ open, onClose }: Props) {
                       )
                     }
                   >
-                    FAQ
+                    {t('menu.faq') as string}
                   </NavButton>
 
                   <Divider />
@@ -331,7 +321,7 @@ export default function BurgerMenu({ open, onClose }: Props) {
                       )
                     }
                   >
-                    Imprint
+                    {t('menu.imprint') as string}
                   </NavButton>
 
                   <NavButton
@@ -341,17 +331,17 @@ export default function BurgerMenu({ open, onClose }: Props) {
                       )
                     }
                   >
-                    Cookie Settings
+                    {t('menu.cookies') as string}
                   </NavButton>
 
                     <Divider />
 
                   {/* Эти уже закрываются, т.к. у <NavLink> стоит onClick={onClose} */}
                   <NavLink href="/privacy" onClick={onClose}>
-                    Privacy Policy
+                    {t('menu.privacy') as string}
                   </NavLink>
                   <NavLink href="/terms" onClick={onClose}>
-                    Terms of Service
+                    {t('menu.terms') as string}
                   </NavLink>
 
                   <Divider />
@@ -362,15 +352,15 @@ export default function BurgerMenu({ open, onClose }: Props) {
                         onClick={handleLogout}
                         className="text-red-600 hover:bg-red-50"
                       >
-                        {signingOut ? "Signing out…" : "Log out"}
+                        {signingOut ? (t('menu.logoutProgress') as string) : (t('menu.logout') as string)}
                       </NavButton>
                     ) : (
                       <>
                         <NavLink href="/auth/sign-in" onClick={onClose}>
-                          Sign in
+                          {t('menu.signin') as string}
                         </NavLink>
                         <NavLink href="/auth/sign-up" onClick={onClose}>
-                          Create account
+                          {t('menu.signup') as string}
                         </NavLink>
                       </>
                     ))}
@@ -382,14 +372,14 @@ export default function BurgerMenu({ open, onClose }: Props) {
                 <div className="space-y-3">
                   <a
                     href="mailto:hello@feerly.com"
-                    className="block text-[14px] hover:text-neutral-700"
+                    className="block text-[17px] hover:text-neutral-700"
                   >
                     hello@feerly.com
                   </a>
 
-                  <div className="flex gap-5">
+                  <div className="flex gap-7">
                     {["instagram", "tiktok", "twitter"].map((icon) => (
-                      <a key={icon} href="#" className="relative h-6 w-6 hover:opacity-80">
+                      <a key={icon} href="#" className="relative h-8 w-8 hover:opacity-80">
                         <Image
                           src={`/icons/${icon}.png`}
                           alt={icon}
@@ -493,6 +483,8 @@ function AccountSettingsPanel({
   const [changingEmail, setChangingEmail] = useState(false);
   const [changingPassword, setChangingPassword] = useState(false);
   const [deleting, setDeleting] = useState(false);
+
+  const { t } = useT();
 
   useEffect(() => {
     supabase.auth.getUser().then(async ({ data }) => {
@@ -631,7 +623,7 @@ async function doDeleteConfirmed() {
         ✕
       </button>
 
-      <h3 className="mb-3 text-[15px] md:text-[16px] font-semibold">Account Settings</h3>
+      <h3 className="mb-3 text-[15px] md:text-[16px] font-semibold">{t('account.title') as string}</h3>
 
       {msg && (
         <div className="mb-4 rounded-lg bg-emerald-50 px-3 py-2 text-[13px] text-emerald-800">
@@ -641,7 +633,7 @@ async function doDeleteConfirmed() {
 
       {/* Username */}
       <div className="mb-4">
-        <div className="mb-1 text-[13px] text-neutral-600">Username</div>
+        <div className="mb-1 text-[13px] text-neutral-600">{t('account.username') as string}</div>
         <input
           value={username}
           onChange={(e) => setUsername(e.target.value)}
@@ -653,14 +645,14 @@ async function doDeleteConfirmed() {
             disabled={savingProfile}
             className="m-btn rounded-xl bg-neutral-900 px-4 text-white disabled:opacity-60"
           >
-            {savingProfile ? "Saving…" : "Save username"}
+            {savingProfile ? (t('account.saving') as string) : (t('account.saveUsername') as string)}
           </button>
         </div>
       </div>
 
       {/* Email */}
       <div className="mb-4">
-        <div className="mb-1 text-[13px] text-neutral-600">Email</div>
+        <div className="mb-1 text-[13px] text-neutral-600">{t('account.email') as string}</div>
         <input
           type="email"
           value={newEmail}
@@ -673,22 +665,22 @@ async function doDeleteConfirmed() {
             disabled={changingEmail}
             className="m-btn rounded-xl border px-4 disabled:opacity-60"
           >
-            {changingEmail ? "Sending…" : "Change email"}
+            {changingEmail ? (t('account.sending') as string) : (t('account.changeEmail') as string)}
           </button>
         </div>
       </div>
 
       {/* Password */}
       <div className="mb-4">
-        <div className="mb-1 text-[13px] text-neutral-600">Change Password</div>
+        <div className="mb-1 text-[13px] text-neutral-600">{t('account.password') as string}</div>
         <PasswordInput
-          placeholder="Current password"
+          placeholder={t('account.currentPassword') as string}
           value={currentPassword}
           onChange={setCurrentPassword}
           inputClassName="m-input mb-2 w-full border border-neutral-200 bg-white"
         />
         <PasswordInput
-          placeholder="New password (8+ chars)"
+          placeholder={t('account.newPassword') as string}
           value={newPassword}
           onChange={setNewPassword}
           inputClassName="m-input w-full border border-neutral-200 bg-white"
@@ -699,34 +691,34 @@ async function doDeleteConfirmed() {
             disabled={changingPassword || newPassword.length < 8}
             className="m-btn rounded-xl border px-4 disabled:opacity-60"
           >
-            {changingPassword ? "Updating…" : "Change password"}
+            {changingPassword ? (t('account.updating') as string) : (t('account.updatePassword') as string)}
           </button>
         </div>
       </div>
 
       {/* Danger zone */}
       <div className="mt-5 rounded-xl border border-red-200 bg-red-50 px-3 py-3">
-        <div className="mb-2 text-[13px] font-medium text-red-700">Danger zone</div>
+        <div className="mb-2 text-[13px] font-medium text-red-700">{t('account.dangerZone') as string}</div>
         <button
           onClick={askDelete}
           disabled={deleting}
           className="m-btn w-full rounded-xl bg-red-600 text-white disabled:opacity-60"
         >
-          {deleting ? "Deleting…" : "Delete account"}
+          {deleting ? (t('account.deleting') as string) : (t('account.deleteTitle') as string)}
         </button>
 
         <ConfirmModal
           open={confirmOpen}
-          title="Delete account?"
-          message="This will permanently remove your FEELRE account and profile data. This action cannot be undone."
-          confirmText="Delete"
-          cancelText="Cancel"
+          title={t('account.deleteTitle') as string}
+          message={t('account.deleteMsg') as string}
+          confirmText={t('common.delete') as string}
+          cancelText={t('common.cancel') as string}
           onCancel={() => setConfirmOpen(false)}
           onConfirm={doDeleteConfirmed}
         />
 
         <p className="mt-2 text-[12px] text-red-700/80">
-          This will permanently remove your account and profile data.
+          {t('account.deleteMsg') as string}
         </p>
       </div>
     </div>

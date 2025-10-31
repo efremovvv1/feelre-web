@@ -1,4 +1,7 @@
+// src/components/AboutCard.tsx
 "use client";
+
+import T from "@/i18n/T";
 
 type Props = {
   onGoFaq: () => void;
@@ -21,7 +24,7 @@ export default function AboutCard({ onGoFaq, onClose }: Props) {
       {/* Кнопка-крестик */}
       <button
         onClick={onClose}
-        aria-label="Close"
+        aria-label={<T path="about.closeAria" /> as unknown as string}
         className="
           absolute right-3 top-3 md:right-4 md:top-4
           flex h-7 w-7 md:h-8 md:w-8 items-center justify-center
@@ -35,10 +38,10 @@ export default function AboutCard({ onGoFaq, onClose }: Props) {
 
       {/* Маленький заголовок */}
       <div className="text-[12px] md:text-[13px] font-semibold tracking-[.18em] text-[#a0a3ad] mb-2 md:mb-3">
-        ABOUT US
+        <T path="about.sectionTitleSmall" />
       </div>
 
-      {/* Основной текст */}
+      {/* Основной контент */}
       <div>
         <h2
           className="
@@ -50,19 +53,23 @@ export default function AboutCard({ onGoFaq, onClose }: Props) {
           "
         >
           <span className="mr-2">👋</span>
-          Hi, I’m{" "}
-          <span className="text-[#6c59ff]">FEELRE</span> — your personal AI
-          shopping assistant.
+          <span className="mr-1">
+            <T path="about.hiPrefix" />
+          </span>
+          <span className="text-[#6c59ff]">
+            <T path="about.brand" />
+          </span>{" "}
+          <T path="about.hiTail" />
         </h2>
 
         <p className="m-body mt-3 md:mt-4 text-[#4a4d57]">
-          I can help you find gifts or any products you want in seconds.
-          Just tell me your vibe, a budget, or the person you’re shopping for —
-          and I’ll suggest great options.
+          <T path="about.body" />
         </p>
 
         <div className="mt-5 md:mt-6 text-[#9aa0aa] text-[14px] md:text-[15px]">
-          Want to learn more?
+          <span className="inline-block">
+            <T path="about.more.prefix" />
+          </span>
           <button
             onClick={onGoFaq}
             className="
@@ -74,7 +81,7 @@ export default function AboutCard({ onGoFaq, onClose }: Props) {
               hover:opacity-90
             "
           >
-            Go to FAQ
+            <T path="about.more.cta" />
           </button>
         </div>
       </div>

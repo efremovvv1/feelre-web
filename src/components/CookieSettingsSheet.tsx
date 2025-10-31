@@ -4,11 +4,14 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion, type Transition } from "framer-motion";
 import { CookieConsentStorage, type Consent } from "@/lib/cookie-consent";
+import { useT } from "@/i18n/Provider";
 
 type Props = { open: boolean; onClose: () => void };
 
 export default function CookieSettingsSheet({ open, onClose }: Props) {
+  const { t } = useT();
   const prefersReduced = useReducedMotion();
+
   const tween: Transition = prefersReduced
     ? { duration: 0 }
     : { type: "tween", ease: [0.22, 0.16, 0.2, 1], duration: 0.22 };
@@ -79,11 +82,11 @@ export default function CookieSettingsSheet({ open, onClose }: Props) {
               {/* header */}
               <div className="relative rounded-t-3xl bg-gradient-to-b from-[#EEE7FF] to-white px-5 py-5 md:px-6">
                 <h2 id="cookie-title" className="text-[20px] md:text-[22px] font-extrabold tracking-[-0.01em]">
-                  Cookie settings
+                  {t("cookies.title")}
                 </h2>
                 <button
                   onClick={onClose}
-                  aria-label="Close"
+                  aria-label={t("cookies.closeAria")}
                   className="absolute right-3 top-3 grid h-9 w-9 place-items-center rounded-xl hover:bg-black/5"
                 >
                   <span className="relative block h-4 w-4">
@@ -96,28 +99,27 @@ export default function CookieSettingsSheet({ open, onClose }: Props) {
               {/* content */}
               <div className="px-5 pb-5 pt-3 md:px-6 md:pb-6">
                 <p className="mb-4 text-[14px] md:text-[15px] text-neutral-700">
-                  We use cookies for essential functionality, analytics, and marketing. You can change your
-                  preferences anytime.
+                  {t("cookies.intro")}
                 </p>
 
                 <div className="space-y-3">
                   <ToggleRow
-                    label="Necessary"
+                    label={t("cookies.categories.necessary")}
                     checked
                     disabled
-                    description="Required for the site to work."
+                    description={t("cookies.descriptions.necessary")}
                   />
                   <ToggleRow
-                    label="Analytics"
+                    label={t("cookies.categories.analytics")}
                     checked={analytics}
                     onChange={setAnalytics}
-                    description="Helps us improve FEELRE."
+                    description={t("cookies.descriptions.analytics")}
                   />
                   <ToggleRow
-                    label="Marketing"
+                    label={t("cookies.categories.marketing")}
                     checked={marketing}
                     onChange={setMarketing}
-                    description="Personalised offers and reminders."
+                    description={t("cookies.descriptions.marketing")}
                   />
                 </div>
 
@@ -127,19 +129,19 @@ export default function CookieSettingsSheet({ open, onClose }: Props) {
                     className="h-11 w-full rounded-xl bg-gradient-to-r from-[#B974FF] via-[#9E73FA] to-[#6B66F6] px-5 text-white sm:w-auto"
                     onClick={() => save({ analytics: true, marketing: true })}
                   >
-                    Accept all
+                    {t("cookies.buttons.acceptAll")}
                   </button>
                   <button
                     className="h-11 w-full rounded-xl border border-neutral-300 px-5 sm:w-auto"
                     onClick={() => save({ analytics: false, marketing: false })}
                   >
-                    Reject all
+                    {t("cookies.buttons.rejectAll")}
                   </button>
                   <button
                     className="h-11 w-full rounded-xl bg-neutral-900 px-5 text-white sm:ml-auto sm:w-auto"
                     onClick={() => save()}
                   >
-                    Save preferences
+                    {t("cookies.buttons.save")}
                   </button>
                 </div>
               </div>
@@ -168,9 +170,7 @@ function ToggleRow({
     <div className="flex items-center justify-between rounded-2xl border border-neutral-200 p-4">
       <div className="min-w-0 pr-3">
         <div className="text-[15px] font-medium">{label}</div>
-        {description && (
-          <div className="text-[13px] text-neutral-500">{description}</div>
-        )}
+        {description && <div className="text-[13px] text-neutral-500">{description}</div>}
       </div>
 
       {/* toggle */}
