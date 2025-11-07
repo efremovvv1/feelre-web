@@ -14,9 +14,12 @@
     "jsx": "preserve",
     "incremental": true,
     "plugins": [{ "name": "next" }],
-    "baseUrl": ".",                // <— ВАЖНО
+    "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]             // <— без "./"
+      "@/*": ["src/*"],                  // было — оставляем
+      "@web/*": ["src/modules/web-ui/*"],
+      "@agent/*": ["src/modules/agent/*"],
+      "@shared/*": ["src/modules/shared/*"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
