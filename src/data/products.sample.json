@@ -1,0 +1,46 @@
+[
+  {
+    "id": "sku_diffuser",
+    "title": "Аромадиффузор из бетона, минималистичный",
+    "brand": "CalmHome",
+    "price": 59.9,
+    "currency": "EUR",
+    "tags": ["home_spa","cozy","minimalist","gift","aroma"],
+    "materials": ["concrete","natural_oils"],
+    "images": ["https://picsum.photos/seed/diffuser/800/600"],
+    "rating": 4.6
+  },
+  {
+    "id": "sku_yoga_mat",
+    "title": "Йога-мат из пробки, eco",
+    "brand": "ZenFlex",
+    "price": 79.0,
+    "currency": "EUR",
+    "tags": ["yoga","eco","fitness","minimalist"],
+    "materials": ["cork"],
+    "images": ["https://picsum.photos/seed/yoga/800/600"],
+    "rating": 4.7
+  },
+  {
+    "id": "sku_tea_set",
+    "title": "Набор для дерева: керамический минималистичный",
+    "brand": "Leaf&Clay",
+    "price": 45.0,
+    "currency": "EUR",
+    "tags": ["tea","cozy","home","gift"],
+    "materials": ["ceramic"],
+    "images": ["https://picsum.photos/seed/tea/800/600"],
+    "rating": 4.5
+  },
+  {
+    "id": "sku_tea_set",
+    "title": "Великий суп",
+    "brand": "Leaf&Clay",
+    "price": 45.0,
+    "currency": "EUR",
+    "tags": ["tea","cozy","home","gift"],
+    "materials": ["ceramic"],
+    "images": ["https://picsum.photos/seed/tea/800/600"],
+    "rating": 4.5
+  }
+]

@@ -31,16 +31,26 @@ export type Product = {
  *  - если есть priceValue и корректный код валюты (3 буквы) -> Intl.NumberFormat
  *  - иначе возвращаем исходную строку price
  */
-function formatPrice(price: string, priceValue?: number, currency = "$") {
+/** Мягкое форматирование цены — детерминированно по указанной локали */
+const PRICE_LOCALE =
+  process.env.NEXT_PUBLIC_PRICE_LOCALE?.trim() || "en-US";
+
+function formatPrice(
+  price: string,
+  priceValue?: number,
+  currency = "$",
+  locale = PRICE_LOCALE
+) {
   if (typeof priceValue === "number" && /^[A-Za-z]{3}$/.test(currency)) {
     try {
-      return new Intl.NumberFormat(undefined, {
+      return new Intl.NumberFormat(locale, {
         style: "currency",
         currency: currency.toUpperCase(),
-        maximumFractionDigits: 2,
+        currencyDisplay: "narrowSymbol", // "$" вместо "US$"
+        maximumFractionDigits: 2
       }).format(priceValue);
     } catch {
-      /* ignore */
+      /* ignore and fallback below */
     }
   }
   return price;
@@ -151,6 +161,7 @@ export default function ProductCard({
           src={image}
           alt={title}
           fill
+          unoptimized
           className="object-contain p-3 sm:p-4"
           sizes="(max-width: 768px) 45vw, 20vw"
         />

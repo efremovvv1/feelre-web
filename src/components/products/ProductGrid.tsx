@@ -62,10 +62,12 @@ export default function ProductGrid({
             [grid-auto-rows:1fr]
           "
         >
-          {shown.map((p) => (
-            <div key={p.id} className="h-full">
-              <ProductCard product={p} />
-            </div>
+
+        
+          {shown.map((p, i) => (
+          <div key={`${p.id}-${i}`} className="h-full">
+          <ProductCard product={p} />
+          </div>
           ))}
         </div>
 
