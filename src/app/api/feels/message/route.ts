@@ -12,6 +12,8 @@ import { SYSTEM_PROMPT, SIGNALS_EXTRACTION_INSTRUCTIONS } from "@/modules/agent/
 import { rankTop8 } from "@/modules/agent/core/rank";
 
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY! });
 
 /** Эвристики: выцепляем relation/occasion/бюджет/валюту прямо из текста */
