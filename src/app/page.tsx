@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import ChatShell from "@/components/chat/ChatShell";
-import KeywordDock from "@/components/chat/KeywordDock";
-import ProductGrid from "@/components/products/ProductGrid";
-import type { Product as UiProduct } from "@/components/products/ProductCard";
+import ChatShell from "@/modules/web-ui/components/chat/ChatShell";
+import KeywordDock from "@/modules/web-ui/components/chat/KeywordDock";
+import ProductGrid from "@/modules/web-ui/components/products/ProductGrid";
+import type { Product as UiProduct } from "@/modules/web-ui/components/products/ProductCard";
 // import { mockProducts } from "@/data/mockProducts"; // опционально для старта
 
 export default function Home() {

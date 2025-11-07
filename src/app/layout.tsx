@@ -1,10 +1,10 @@
 // src/app/layout.tsx
 import './globals.css';
-import SiteShell from '@/components/SiteShell';
-import { montserrat } from '@/styles/fonts';
+import SiteShell from '@/modules/web-ui/components/SiteShell';
+import { montserrat } from '@/modules/web-ui/styles/fonts';
 import { cookies } from 'next/headers';
-import { I18nProvider } from '@/i18n/Provider';
-import { DEFAULT_LANG, SUPPORTED_LANGS, type Lang, LANG_COOKIE } from '@/i18n/config';
+import { I18nProvider } from '@/modules/web-ui/i18n/Provider';
+import { DEFAULT_LANG, SUPPORTED_LANGS, type Lang, LANG_COOKIE } from '@/modules/web-ui/i18n/config';
 
 export const metadata = { title: 'FEELRE', description: 'AI shopping assistant' };
 

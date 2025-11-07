@@ -1,10 +1,10 @@
 // src/app/api/change-password/route.ts
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import supabaseAdmin from "@/lib/supabase-admin";
-import { sendEmail } from "@/lib/mailer";
+import supabaseAdmin from "@/modules/shared/supabase/admin";
+import { sendEmail } from "@/modules/shared/email/mailer";
 import React from "react";
-import PasswordChangedEmail from "@/emails/PasswordChangedEmail";
+import PasswordChangedEmail from "@/modules/web-ui/emails/PasswordChangedEmail";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";

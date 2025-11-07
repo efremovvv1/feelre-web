@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { headers } from "next/headers";
-import supabaseAdmin from "@/lib/supabase-admin";
-import { getServerSupabase } from "@/lib/supabase-server";
+import supabaseAdmin from "@/modules/shared/supabase/admin";
+import { getServerSupabase } from "@/modules/shared/supabase/server";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";

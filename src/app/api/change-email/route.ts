@@ -1,10 +1,10 @@
 // src/app/api/account/change-email/route.ts
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import supabaseAdmin from "@/lib/supabase-admin";
-import { sendEmail } from "@/lib/mailer";
+import supabaseAdmin from "@/modules/shared/supabase/admin";
+import { sendEmail } from "@/modules/shared/email/mailer";
 import React from "react";
-import EmailChangedEmail from "@/emails/EmailChangedEmail";
+import EmailChangedEmail from "@/modules/web-ui/emails/EmailChangedEmail";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";

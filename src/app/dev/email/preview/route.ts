@@ -1,9 +1,9 @@
 // src/app/api/auth/forgot/route.ts
 import { NextResponse } from "next/server";
-import supabaseAdmin from "@/lib/supabase-admin";
-import { sendEmail } from "@/lib/mailer";
+import supabaseAdmin from "@/modules/shared/supabase/admin";
+import { sendEmail } from "@/modules/shared/email/mailer";
 import React from "react";
-import PasswordResetEmail from "@/emails/PasswordResetEmail";
+import PasswordResetEmail from "@/modules/web-ui/emails/PasswordResetEmail";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
