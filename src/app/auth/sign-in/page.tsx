@@ -3,11 +3,11 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabase";
-import SetHeaderTitle from "@/components/SetHeaderTitle";
-import PasswordInput from "@/components/ui/PasswordInput";
-import { useT } from "@/i18n/Provider";
-import T from "@/i18n/T";
+import { supabase } from "@/modules/shared/supabase/client-web";
+import SetHeaderTitle from "@/modules/web-ui/components/SetHeaderTitle";
+import PasswordInput from "@/modules/web-ui/components/ui/PasswordInput";
+import { useT } from "@/modules/web-ui/i18n/Provider";
+import T from "@/modules/web-ui/i18n/T";
 
 /* — helpers — */
 function getErrMessage(err: unknown): string {

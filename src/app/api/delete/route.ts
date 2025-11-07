@@ -1,10 +1,10 @@
 // src/app/api/account/delete/route.ts
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import supabaseAdmin from "@/lib/supabase-admin";
-import { sendEmail } from "@/lib/mailer";
+import supabaseAdmin from "@/modules/shared/supabase/admin";
+import { sendEmail } from "@/modules/shared/email/mailer";
 import React from "react";
-import AccountDeletedEmail from "@/emails/AccountDeletedEmail";
+import AccountDeletedEmail from "@/modules/web-ui/emails/AccountDeletedEmail";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";

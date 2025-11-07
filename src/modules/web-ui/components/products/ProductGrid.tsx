@@ -2,9 +2,9 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import ProductCard, { Product } from "@/components/products/ProductCard";
-import { goToChat } from "@/utils/goToChat";
-import { useT } from "@/i18n/Provider";
+import ProductCard, { Product } from "@/modules/web-ui/components/products/ProductCard";
+import { goToChat } from "@/modules/web-ui/utils/goToChat";
+import { useT } from "@/modules/web-ui/i18n/Provider";
 
 type Props = {
   products: Product[];

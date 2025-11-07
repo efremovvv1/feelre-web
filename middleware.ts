@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { DEFAULT_LANG, LANG_COOKIE, SUPPORTED_LANGS } from '@/i18n/config'
+import { DEFAULT_LANG, LANG_COOKIE, SUPPORTED_LANGS } from '@/modules/web-ui/i18n/config'
 
 export function middleware(req: NextRequest) {
   // просто пропускаем запрос дальше

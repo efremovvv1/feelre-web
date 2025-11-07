@@ -3,7 +3,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import T from "@/i18n/T";
+import T from "@/modules/web-ui/i18n/T";
 
 function openPanel(panel: "about" | "faq") {
   document.querySelector("#chat-box")?.scrollIntoView({ behavior: "smooth", block: "center" });

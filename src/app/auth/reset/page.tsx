@@ -3,10 +3,10 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { supabase } from "@/lib/supabase";
-import SetHeaderTitle from "@/components/SetHeaderTitle";
-import PasswordInput from "@/components/ui/PasswordInput";
-import { useT } from "@/i18n/Provider";
+import { supabase } from "@/modules/shared/supabase/client-web";
+import SetHeaderTitle from "@/modules/web-ui/components/SetHeaderTitle";
+import PasswordInput from "@/modules/web-ui/components/ui/PasswordInput";
+import { useT } from "@/modules/web-ui/i18n/Provider";
 
 /** простая оценка «силы» пароля (0..5) */
 function scorePassword(pw: string) {

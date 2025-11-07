@@ -1,6 +1,6 @@
 'use client';
-import { useT } from '@/i18n/Provider';
-import type { Lang } from '@/i18n/config';
+import { useT } from "@/modules/web-ui/i18n/Provider";
+import type { Lang } from '@/modules/web-ui/i18n/config';
 
 const NAMES: Record<Lang, string> = {
   en: 'English 🇬🇧',

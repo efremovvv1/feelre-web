@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Montserrat } from "next/font/google";
 import { usePathname } from "next/navigation";
-import { useT } from "@/i18n/Provider";
+import { useT } from "@/modules/web-ui/i18n/Provider";
 
 const montserrat700 = Montserrat({ subsets: ["latin"], weight: ["700"] });
 

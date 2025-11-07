@@ -3,8 +3,8 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import SetHeaderTitle from "@/components/SetHeaderTitle";
-import { useT } from "@/i18n/Provider";
+import SetHeaderTitle from "@/modules/web-ui/components/SetHeaderTitle";
+import { useT } from "@/modules/web-ui/i18n/Provider";
 
 function isValidEmail(v: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);

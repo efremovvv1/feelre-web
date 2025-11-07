@@ -1,8 +1,8 @@
 // src/components/SetHeaderTitleI18n.tsx
 'use client';
 
-import SetHeaderTitle from '@/components/SetHeaderTitle';
-import { useT } from '@/i18n/Provider';
+import SetHeaderTitle from '@/modules/web-ui/components/SetHeaderTitle';
+import { useT } from '@/modules/web-ui/i18n/Provider';
 
 export default function SetHeaderTitleI18n({
   path,

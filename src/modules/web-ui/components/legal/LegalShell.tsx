@@ -3,7 +3,7 @@
 
 import Link from "next/link";
 import { Montserrat } from "next/font/google";
-import T from "@/i18n/T";
+import T from "@/modules/web-ui/i18n/T";
 
 const montserrat = Montserrat({
   subsets: ["latin"],

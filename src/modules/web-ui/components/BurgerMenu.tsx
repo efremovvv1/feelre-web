@@ -11,12 +11,12 @@ import {
 } from "framer-motion";
 import { useRouter } from "next/navigation";
 
-import { REGIONS } from "@/data/regions";
-import { supabase } from "@/lib/supabase";
-import ConfirmModal from "@/components/ui/ConfirmModal";
+import { REGIONS } from "@/modules/web-ui/data/regions";
+import { supabase } from "@/modules/shared/supabase/client-web";
+import ConfirmModal from "@/modules/web-ui/components/ui/ConfirmModal";
 import PasswordInput from "./ui/PasswordInput";
 
-import { useT } from "@/i18n/Provider";
+import { useT } from "@/modules/web-ui/i18n/Provider";
 import LangSwitcher from "./LangSwitcher";
 
 

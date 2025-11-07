@@ -3,7 +3,7 @@
 
 import { AnimatePresence, motion, useReducedMotion, type Transition } from "framer-motion";
 import { useEffect } from "react";
-import { useT } from "@/i18n/Provider";
+import { useT } from "@/modules/web-ui/i18n/Provider";
 
 type Props = { open: boolean; onClose: () => void };
 

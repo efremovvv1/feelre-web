@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 // useT можно оставить, но язык возьмём из DOM/navigator
-import { useT } from "@/i18n/Provider";
+import { useT } from "@/modules/web-ui/i18n/Provider";
 
 type Chip = { value: string };
 

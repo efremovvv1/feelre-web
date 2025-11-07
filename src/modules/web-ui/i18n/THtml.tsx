@@ -1,7 +1,7 @@
 // src/i18n/THtml.tsx
 "use client";
 
-import { useT } from "@/i18n/Provider";
+import { useT } from "@/modules/web-ui/i18n/Provider";
 import type { ElementType, ComponentPropsWithoutRef } from "react";
 
 type Props<T extends ElementType> = {

@@ -3,12 +3,12 @@
 
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
-import BurgerMenu from "@/components/BurgerMenu";
-import ImpressumSheet from "@/components/ImpressumSheet";
-import CookieSettingsSheet from "@/components/CookieSettingsSheet";
-import CookieBanner from "@/components/CookieBanner";
+import Header from "@/modules/web-ui/components/Header";
+import Footer from "@/modules/web-ui/components/Footer";
+import BurgerMenu from "@/modules/web-ui/components/BurgerMenu";
+import ImpressumSheet from "@/modules/web-ui/components/ImpressumSheet";
+import CookieSettingsSheet from "@/modules/web-ui/components/CookieSettingsSheet";
+import CookieBanner from "@/modules/web-ui/components/CookieBanner";
 
 export default function SiteShell({ children }: { children: React.ReactNode }) {
   const [isBurgerOpen, setIsBurgerOpen] = useState(false);

@@ -3,8 +3,8 @@
 
 import { useEffect, useState } from "react";
 import CookieSettingsSheet from "./CookieSettingsSheet";
-import { CookieConsentStorage } from "@/lib/cookie-consent";
-import { useT } from "@/i18n/Provider";
+import { CookieConsentStorage } from "@/modules/web-ui/utils/cookie-consent";
+import { useT } from "@/modules/web-ui/i18n/Provider";
 
 export default function CookieBanner() {
   const { t } = useT();

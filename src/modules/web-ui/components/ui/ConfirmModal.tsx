@@ -1,6 +1,6 @@
 // src/components/ui/ConfirmModal.tsx
 "use client";
-import ModalBase from "@/components/ui/ModalBase";
+import ModalBase from "@/modules/web-ui/components/ui/ModalBase";
 
 type Props = {
   open: boolean;

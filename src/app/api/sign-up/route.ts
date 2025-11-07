@@ -1,9 +1,9 @@
 // src/app/auth/sign-up/route.ts
 import { NextResponse } from "next/server";
 import React from "react";
-import supabaseAdmin from "@/lib/supabase-admin";
-import { sendEmail } from "@/lib/mailer";
-import WelcomeVerifyEmail from "@/emails/WelcomeVerifyEmail";
+import supabaseAdmin from "@/modules/shared/supabase/admin";
+import { sendEmail } from "@/modules/shared/email/mailer";
+import WelcomeVerifyEmail from "@/modules/web-ui/emails/WelcomeVerifyEmail";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";

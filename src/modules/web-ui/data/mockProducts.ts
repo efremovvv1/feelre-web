@@ -1,5 +1,5 @@
 // src/components/products/mockProducts.ts
-import { Product } from "@/components/products/ProductCard";
+import { Product } from "@/modules/web-ui/components/products/ProductCard";
 
 export const mockProducts: Product[] = [
   {

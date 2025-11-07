@@ -1,7 +1,7 @@
 // src/components/AboutCard.tsx
 "use client";
 
-import T from "@/i18n/T";
+import T from "@/modules/web-ui/i18n/T";
 
 type Props = {
   onGoFaq: () => void;

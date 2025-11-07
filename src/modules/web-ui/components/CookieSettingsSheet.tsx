@@ -3,8 +3,8 @@
 
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion, type Transition } from "framer-motion";
-import { CookieConsentStorage, type Consent } from "@/lib/cookie-consent";
-import { useT } from "@/i18n/Provider";
+import { CookieConsentStorage, type Consent } from "@/modules/web-ui/utils/cookie-consent";
+import { useT } from "@/modules/web-ui/i18n/Provider";
 
 type Props = { open: boolean; onClose: () => void };
 

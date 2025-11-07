@@ -1,7 +1,7 @@
 // src/components/FaqCard.tsx
 "use client";
 
-import { useT } from "@/i18n/Provider";
+import { useT } from "@/modules/web-ui/i18n/Provider";
 
 type Props = { onBack: () => void };
 

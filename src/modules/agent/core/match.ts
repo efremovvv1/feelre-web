@@ -1,4 +1,4 @@
-import catalog from "@/data/products.sample.json";
+import catalog from "@/modules/web-ui/data/products.sample.json";
 import type { Signals } from "@/modules/agent/contracts";
 import type { Product } from "@/modules/shared/types/product";
 

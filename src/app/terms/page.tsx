@@ -1,5 +1,5 @@
 // src/app/terms/page.tsx  ← БЕЗ "use client"
-import SetHeaderTitleI18n from "@/components/SetHeaderTitleI18n";
+import SetHeaderTitleI18n from "@/modules/web-ui/components/SetHeaderTitleI18n";
 import TermsContent from "./terms-content";
 
 export const metadata = {

@@ -5,7 +5,7 @@ import Image from "next/image";
 import AboutCard from "./AboutCard";
 import FaqCard from "./FaqCard";
 import { sendToAgent, type FeelsResponse, type RecsReply, type RecItem } from "@/modules/agent/core/feels-client";
-import type { Product as UiProduct } from "@/components/products/ProductCard";
+import type { Product as UiProduct } from "@/modules/web-ui/components/products/ProductCard";
 
 /* ---------- Типы UI-сообщений ---------- */
 type Role = "user" | "assistant";

@@ -1,9 +1,9 @@
 // src/app/privacy/PrivacyContent.tsx  (client)
 "use client";
 
-import LegalShell from "@/components/legal/LegalShell";
-import T from "@/i18n/T";
-import THtml from "@/i18n/THtml";
+import LegalShell from "@/modules/web-ui/components/legal/LegalShell";
+import T from "@/modules/web-ui/i18n/T";
+import THtml from "@/modules/web-ui/i18n/THtml";
 
 export default function PrivacyContent() {
   return (
