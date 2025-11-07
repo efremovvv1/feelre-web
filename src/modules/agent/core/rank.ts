@@ -1,6 +1,6 @@
-import type { Signals, Item } from "./contracts";
+import type { Signals, Item } from "@/modules/agent/contracts";
 import { retrieveCandidates } from "./match";
-import type { Product } from "./types";
+import type { Product } from "@/modules/shared/types/product";
 
 export function rankTop8(signals: Signals): Item[] {
   const candidates: Product[] = retrieveCandidates(signals);

@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import AboutCard from "./AboutCard";
 import FaqCard from "./FaqCard";
-import { sendToAgent, type FeelsResponse, type RecsReply, type RecItem } from "@/lib/feels-client";
+import { sendToAgent, type FeelsResponse, type RecsReply, type RecItem } from "@/modules/agent/core/feels-client";
 import type { Product as UiProduct } from "@/components/products/ProductCard";
 
 /* ---------- Типы UI-сообщений ---------- */

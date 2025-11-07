@@ -7,9 +7,9 @@ import {
   ChatReplySchema,
   RecommendationsSchema,
   type Signals
-} from "@/lib/contracts";
-import { SYSTEM_PROMPT, SIGNALS_EXTRACTION_INSTRUCTIONS } from "@/lib/prompts";
-import { rankTop8 } from "@/lib/rank";
+} from "@/modules/agent/contracts";
+import { SYSTEM_PROMPT, SIGNALS_EXTRACTION_INSTRUCTIONS } from "@/modules/agent/core/prompts";
+import { rankTop8 } from "@/modules/agent/core/rank";
 
 export const runtime = "nodejs";
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY! });

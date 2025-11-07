@@ -1,6 +1,6 @@
 import catalog from "@/data/products.sample.json";
-import type { Signals } from "./contracts";
-import type { Product } from "./types";
+import type { Signals } from "@/modules/agent/contracts";
+import type { Product } from "@/modules/shared/types/product";
 
 const norm = (s: string) => s.toLowerCase();
 
