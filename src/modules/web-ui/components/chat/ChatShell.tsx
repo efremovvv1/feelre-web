@@ -4,8 +4,9 @@ import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import AboutCard from "./AboutCard";
 import FaqCard from "./FaqCard";
-import { sendToAgent, type FeelsResponse, type RecsReply, type RecItem } from "@/modules/agent/core/feels-client";
+import { sendToAgent, type FeelsResponse, type Recommendations } from "@/modules/agent/core/feels-client";
 import type { Product as UiProduct } from "@/modules/web-ui/components/products/ProductCard";
+import type { Signals } from "@/modules/agent/contracts";
 
 /* ---------- Типы UI-сообщений ---------- */
 type Role = "user" | "assistant";
@@ -62,6 +63,8 @@ function Bubble({ children, align = "left", tone = "default", chips, onChipClick
 }
 
 /* ---------- Маппер API → твой формат карточек (для ProductGrid) ---------- */
+type RecItem = Recommendations["items"][number];
+
 function toUiProduct(it: RecItem): UiProduct {
   return {
     id: it.product_id,
@@ -107,8 +110,12 @@ function extractKeywords(t: string): string[] {
   if (/(новый\s*год|новогод|new\s*year|silvester)/i.test(text)) out.add("new_year");
 
   // budget
-  const m = text.match(/(\d{1,5})(?:[.,](\d{1,2}))?\s*(€|eur|евро|\$|usd|доллар)/i);
-  if (m) out.add(`${m[1]} ${/€|eur|евро/i.test(m[2]) ? "€" : "$"}`);
+ const m = text.match(/(\d{1,5})(?:[.,](\d{1,2}))?\s*(€|eur|евро|\$|usd|доллар)/i);
+ if (m) {
+  const cur = /€|eur|евро/i.test(m[3]) ? "€" : "$";
+  // храним в стабильном виде, чтобы KeywordDock красиво переводил
+  out.add(`${m[1]}_${cur}`); // пример: "100_€"
+}
 
   // hobbies/interests
   const hobbies: Array<[string, RegExp]> = [
@@ -128,6 +135,93 @@ function extractKeywords(t: string): string[] {
   return Array.from(out);
 }
 
+function buildKeywords(payload: string, mem?: Signals | undefined): string[] {
+  const fromText = extractKeywords(payload);
+
+  const fromMem: string[] = [];
+  if (mem?.recipient_profile?.relation) fromMem.push(mem.recipient_profile.relation);
+  if (mem?.gift_context?.occasion)      fromMem.push(mem.gift_context.occasion);
+  if (mem?.gift_context?.vibe?.length)  fromMem.push(mem.gift_context.vibe[0]);
+  if (typeof mem?.constraints?.budget_max === "number" && mem.currency) {
+    const cur = /eur/i.test(mem.currency) ? "€" : "$";
+    fromMem.push(`${Math.round(mem.constraints.budget_max)}_${cur}`);
+  }
+  if (mem?.recipient_profile?.interests?.length) fromMem.push(...mem.recipient_profile.interests);
+
+  // нормализация под KeywordDock
+  return Array.from(new Set([...fromText, ...fromMem]))
+    .map(k => k.trim().toLowerCase().replace(/\s+/g, "_"));
+}
+
+// ===== Канон и гигиена ключей (dedup, синонимы, лимиты) =====
+const KEY_WHITELIST = new Set<string>([
+  // relation
+  "sister","mother","father","girlfriend","boyfriend","friend","brother","wife","husband","colleague",
+  // occasion
+  "birthday","new_year",
+  // interests/vibe
+  "gaming","cooking","swimming","yoga","coffee","travel","reading","eco","minimal","cozy",
+  // спец-формы идут отдельной проверкой (см. canon)
+]);
+
+const SYNONYM_MAP: Record<string,string> = {
+  // ru → канон
+  "брат":"brother","сестра":"sister","мама":"mother","папа":"father","девушка":"girlfriend","парень":"boyfriend",
+  "жена":"wife","муж":"husband","коллега":"colleague",
+  "день_рождения":"birthday","др":"birthday","новый_год":"new_year","новыйгод":"new_year",
+  "игры":"gaming","компьютерные_игры":"gaming","игровой":"gaming",
+  "готовка":"cooking","плавание":"swimming","йога":"yoga","кофе":"coffee",
+  "путешествия":"travel","чтение":"reading","эко":"eco","минимализм":"minimal","уютный":"cozy",
+};
+
+function canon(raw: string): string {
+  const x = raw.trim().toLowerCase().replace(/\s+/g, "_");
+
+  // Бюджет: "40 €", "40€", "40_eur", "40_евро" -> "40_€"
+  const money = x.match(/^(\d+)[\s_]*([€$]|eur|usd|евро|доллар)$/i);
+  if (money) {
+    const cur = /(€|eur|евро)/i.test(money[2]) ? "€" : "$";
+    return `${money[1]}_${cur}`;
+  }
+
+  // Возраст: "22 years" | "22 года" | "22 лет" -> "22_years"
+  const age = x.match(/^(\d+)\s*(год|года|лет|years?)$/i);
+  if (age) return `${age[1]}_years`;
+
+  return SYNONYM_MAP[x] ?? x;
+}
+
+// Приоритеты, чтобы показывать важное и ограничить число чипсов
+function kwScore(k: string): number {
+  if (["sister","mother","father","girlfriend","boyfriend","friend","brother","wife","husband","colleague"].includes(k)) return 100;
+  if (["birthday","new_year"].includes(k)) return 90;
+  if (["gaming","cooking","swimming","yoga","coffee","travel","reading","eco","minimal","cozy"].includes(k)) return 80;
+  if (/^\d+_(€|\$)$/.test(k)) return 60;  // бюджет
+  if (/^\d+_years$/.test(k)) return 50;   // возраст
+  return 10;
+}
+
+function tidyKeywords(all: string[], limit = 6): string[] {
+  const seen = new Set<string>();
+  const out: string[] = [];
+
+  for (const raw of all) {
+    const k = canon(raw);
+
+    // пропускаем всё, что не в вайтлисте, кроме спец-числовых форм
+    const isNumeric = /^\d+_(€|\$)$/.test(k) || /^\d+_years$/.test(k);
+    if (!isNumeric && !KEY_WHITELIST.has(k)) continue;
+
+    if (!seen.has(k)) {
+      seen.add(k);
+      out.push(k);
+    }
+  }
+
+  out.sort((a, b) => kwScore(b) - kwScore(a));
+  return out.slice(0, limit);
+}
+
 
 export default function ChatShell() {
   const [messages, setMessages] = useState<ChatMsg[]>([
@@ -136,6 +230,7 @@ export default function ChatShell() {
   const [panel, setPanel] = useState<Panel>("about");
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [memory, setMemory] = useState<Signals | undefined>(undefined);
 
   // корень чата для скролла в центр
   const rootRef = useRef<HTMLElement>(null);
@@ -173,8 +268,11 @@ export default function ChatShell() {
 
     try {
       // 2) запрос к агенту
-      const resp: FeelsResponse = await sendToAgent(payload);
-
+      const resp: FeelsResponse = await sendToAgent(payload, memory);
+      // сразу после const resp = await sendToAgent(...)
+      if ("memory" in resp && resp.memory) {
+      setMemory(resp.memory);
+      }
       if (resp.type === "chat") {
         // короткая фраза + чипсы в чате
         setMessages((prev) => [
@@ -184,28 +282,40 @@ export default function ChatShell() {
             id: crypto.randomUUID(),
             role: "assistant",
             text: resp.message,
-            chips: resp.suggested_replies
+            chips: resp.suggested_replies,
           }
         ]);
 } else {
-  const recs = (resp as RecsReply).items.map(toUiProduct);
+  const recs = (resp as Recommendations).items.map(toUiProduct);
 
   setMessages(prev => [
     ...prev,
-    { kind: "bubble", id: crypto.randomUUID(), role: "assistant", text: "Готово! Показал идеи ниже 👇" }
+    { kind: "bubble", 
+      id: crypto.randomUUID(), 
+      role: "assistant", 
+      text: "Готово! Показал идеи ниже 👇" }
   ]);
+
+  
 
   window.dispatchEvent(new CustomEvent("feelre:products", {
     detail: { products: recs, header: resp.message ?? "" }
   }));
 
-  // Keywords из пользовательского текста
-  const kw = extractKeywords(payload);
+  // 2.5) отправляем keywords всегда
+  const kwRaw = [
+    ...extractKeywords(payload),                           // из текста
+    ...buildKeywords(payload, "memory" in resp ? resp.memory : undefined), // из памяти
+  ];
+  const kw = tidyKeywords(kwRaw, 6); // 6 — удобный лимит для UX
   if (kw.length) {
     window.dispatchEvent(new CustomEvent("feelre:keywords", { detail: { keywords: kw } }));
   }
 
-  window.dispatchEvent(new CustomEvent("feelre:scroll-products"));
+  // скроллим к товарам только если пришли рекомендации
+  if (resp.type === "recommendations") {
+    window.dispatchEvent(new CustomEvent("feelre:scroll-products"));
+  }
 }
     } catch {
       setMessages((prev) => [
@@ -307,7 +417,4 @@ export default function ChatShell() {
       </div>
     </section>
   );
-
-
-  
 }

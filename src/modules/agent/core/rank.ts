@@ -1,6 +1,7 @@
 import type { Signals, Item } from "@/modules/agent/contracts";
 import { retrieveCandidates } from "./match";
 import type { Product } from "@/modules/shared/types/product";
+import type { CatalogItem } from "@/modules/agent/catalog/types";
 
 export function rankTop8(signals: Signals): Item[] {
   const candidates: Product[] = retrieveCandidates(signals);
@@ -28,6 +29,14 @@ export function rankTop8(signals: Signals): Item[] {
     match_score: Math.random() * 0.2 + 0.75,
     deep_link: `/product/${p.id}`
   }));
+}
+
+export function rankTop8FromPool(pool: CatalogItem[]): CatalogItem[] {
+  const arr = [...pool];
+  for (let i = 0; i < arr.length - 1; i++) {
+    if (Math.random() < 0.12) [arr[i], arr[i+1]] = [arr[i+1], arr[i]];
+  }
+  return arr.slice(0, 8);
 }
 
 function buildWhy(p: Product, s: Signals): string {
